@@ -301,6 +301,35 @@ function browserLauncherForPlatform(url, {
   return null;
 }
 
+/**
+ * Split an operator launcher command into an argv array, honoring single and
+ * double quotes so a quoted path containing spaces stays one argument. No shell
+ * is involved: metacharacters (; | & $ ` * > <) are inert literal characters.
+ * Best-effort and total — never throws; an unmatched quote closes at end-of-string.
+ * @param {string} str
+ * @returns {string[]}  argv (empty for an empty/whitespace-only input)
+ */
+function parseLauncherCommand(str) {
+  const argv = [];
+  let cur = '';
+  let quote = null;   // "'" or '"' while inside a quoted span, else null
+  let started = false; // does cur hold a token (incl. an empty "" quoted token)?
+  for (const ch of str) {
+    if (quote) {
+      if (ch === quote) quote = null;      // closing quote: drop it, stay in token
+      else cur += ch;                      // any char (incl. spaces) is literal
+    } else if (ch === '"' || ch === "'") {
+      quote = ch; started = true;          // opening quote: drop it, begin token
+    } else if (ch === ' ' || ch === '\t' || ch === '\n' || ch === '\r') {
+      if (started) { argv.push(cur); cur = ''; started = false; }
+    } else {
+      cur += ch; started = true;
+    }
+  }
+  if (started) argv.push(cur);             // flush trailing token (also closes unmatched quote)
+  return argv;
+}
+
 function isRegularFileInsideContentDir(filePath) {
   let stat, realContentDir, realFilePath;
   try {
@@ -718,6 +747,7 @@ module.exports = {
   encodeFrame,
   decodeFrame,
   browserLauncherForPlatform,
+  parseLauncherCommand,
   OPCODES,
   MAX_FRAME_PAYLOAD_BYTES
 };

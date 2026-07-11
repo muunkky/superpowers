@@ -102,6 +102,36 @@ scripts/start-server.sh \
 
 Use `--url-host` to control what hostname is printed in the returned URL JSON.
 
+## Operator configuration: `BRAINSTORM_OPEN_CMD`
+
+By default `--open` auto-opens the first screen with the platform's built-in browser launcher. An operator can override that launcher by setting the `BRAINSTORM_OPEN_CMD` environment variable — its value replaces the built-in command used to open the companion URL.
+
+**Accepted shape.** A single launcher binary followed by optional flags and arguments, whitespace-separated. Single or double quotes group a run of characters into one argument, so a path that contains spaces **must** be quoted:
+
+```bash
+# binary + flags + args, whitespace-separated
+BRAINSTORM_OPEN_CMD='firefox --new-window'
+
+# a path containing spaces must be quoted so it stays one argument
+BRAINSTORM_OPEN_CMD='"/Applications/My Browser.app/Contents/MacOS/browser"'
+```
+
+The companion appends the session URL as the final argument, so name only the launcher — do not include the URL yourself.
+
+**Trust posture.** The override fires only when auto-open is opted into (`BRAINSTORM_OPEN` is set) and only on a loopback bind. Its value is treated as **trusted operator input** — it is the operator's own machine launching the operator's own browser, not attacker-controlled data.
+
+**No shell.** The value is tokenized and the launcher is spawned directly (argv, no shell) — it is **not** interpreted by a shell. The following shell features are **not** honored:
+
+- pipes (`|`)
+- redirection (`>`, `<`)
+- command substitution (`$(…)`, backticks)
+- globbing (`*`, `?`)
+- `$VAR` environment-variable expansion
+- `~` (tilde / home-directory) expansion
+- backslash-escaping (e.g. `My\ Browser`)
+
+Name a single launcher binary and its arguments. To point at a path that contains spaces, **quote the absolute path** (as shown above) — do not backslash-escape the spaces and do not use `~`; give the full absolute path instead.
+
 ## The Loop
 
 1. **Check server is alive**, then **write HTML** to a new file in `screen_dir`:
