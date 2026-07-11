@@ -564,10 +564,16 @@ function maybeOpenBrowser() {
   if (clients.size > 0) return; // the user already opened it
   const url = companionUrl(); // must carry the key or the gate 403s it
   const cp = require('child_process');
-  // Operator-provided launcher: run as given (this env var is trusted operator input).
+  // Operator-provided launcher: no shell — argv via execFile, matching the
+  // platform-launcher branch below. Shell metacharacters in the operator value
+  // or the URL are handed to the launcher as inert literal argv, never executed.
   if (process.env.BRAINSTORM_OPEN_CMD) {
-    try { cp.exec(process.env.BRAINSTORM_OPEN_CMD + ' ' + JSON.stringify(url), () => {}); } catch (e) { /* best effort */ }
-    return;
+    const argv = parseLauncherCommand(process.env.BRAINSTORM_OPEN_CMD);
+    if (argv.length && argv[0]) {
+      try { cp.execFile(argv[0], [...argv.slice(1), url], () => {}); } catch (e) { /* best effort */ }
+      return;
+    }
+    // empty / quoted-empty / whitespace-only -> fall through to the built-in platform launcher
   }
   // Platform launchers: pass the URL as an argv element via execFile (no shell),
   // so a url-host containing shell metacharacters can't inject a command.

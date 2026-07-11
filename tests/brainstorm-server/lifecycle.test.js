@@ -490,6 +490,36 @@ async function runTests() {
     assert(!opened, 'must not open the browser without explicit approval');
   });
 
+  await test('operator BRAINSTORM_OPEN_CMD is spawned without a shell (no injection)', async () => {
+    const dir = fs.mkdtempSync('/tmp/bs-open-');
+    const marker = path.join(dir, 'opened.log');
+    const pwned = path.join(dir, 'pwned');
+    // A working launcher followed by a shell-injection payload. With no shell
+    // between the operator value and the process, the `;`, `touch`, and <pwned>
+    // tokens are handed to the launcher as inert literal argv, never executed.
+    const openCmd = openCaptureCommand(dir, marker) + ' ; touch ' + JSON.stringify(pwned);
+    const srv = spawn('node', [SERVER], { env: { ...process.env, BRAINSTORM_PORT: 3424, BRAINSTORM_DIR: dir, BRAINSTORM_OPEN: '1', BRAINSTORM_OPEN_CMD: openCmd, BRAINSTORM_LIFECYCLE_CHECK_MS: 100000 } });
+    let out = ''; srv.stdout.on('data', d => out += d.toString());
+    for (let i = 0; i < 60 && !out.includes('server-started'); i++) await sleep(50);
+
+    // First screen with no browser connected -> the operator launcher fires once.
+    fs.writeFileSync(path.join(dir, 'content', 'first.html'), '<h2>First</h2>');
+    await waitForFile(marker);   // the launcher (capture script) ran
+    await sleep(300);            // give any (wrongly) shelled-out `; touch` time to land
+    const injected = fs.existsSync(pwned);
+    const markerContent = fs.existsSync(marker) ? fs.readFileSync(marker, 'utf8') : '';
+    await killAndWait(srv);
+    fs.rmSync(dir, { recursive: true, force: true });
+
+    // (a) NON-EXECUTION: the shell metacharacters must never run.
+    assert(!injected, 'shell metacharacters in BRAINSTORM_OPEN_CMD must never execute — `; touch <pwned>` created a file');
+    // (b) FIRED ONCE: the operator launcher still ran (marker written, non-empty).
+    // NOTE: the marker's contents are intentionally not asserted to equal the URL —
+    // the injected tokens shift the URL past the capture script's process.argv[3]
+    // (which becomes ';'). URL delivery is locked by the "auto-opens once" test above.
+    assert(markerContent.trim().length > 0, 'the operator launcher must still fire once (marker written)');
+  });
+
   await test('unauthenticated requests do not defeat the idle timeout', async () => {
     const dir = fs.mkdtempSync('/tmp/bs-life-');
     const srv = spawn('node', [SERVER], { env: { ...process.env, BRAINSTORM_PORT: 3419, BRAINSTORM_DIR: dir, BRAINSTORM_TOKEN: 'authtok', BRAINSTORM_IDLE_TIMEOUT_MS: 400, BRAINSTORM_LIFECYCLE_CHECK_MS: 100 } });
