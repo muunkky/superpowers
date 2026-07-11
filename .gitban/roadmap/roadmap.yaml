@@ -1,0 +1,1128 @@
+schema_version: 3.0.0
+document_version: 0.1.0
+last_updated: '2026-07-10'
+metadata:
+  maintained_by: muunkky/superpowers fork (tracking obra/superpowers upstream)
+  review_frequency: Monthly
+  related_docs:
+    - docs/README.md
+    - https://github.com/obra/superpowers/issues
+    - https://github.com/obra/superpowers/pulls
+  tools:
+    roadmap_tracking: roadmap.yaml
+    task_tracking: gitban cards
+    Gitban_mcp: https://github.com/muunkky/gitban-mcp
+milestones:
+  m1:
+    id: m1
+    title: Superpowers 6.x — Cross-Harness Agentic SDLC
+    description: 'Upstream (obra/superpowers) development landscape, mirrored from
+      PR + issue history so this fork can track where the project is going and pick
+      where to contribute. Status reflects UPSTREAM reality: done = merged PR, in_progress
+      = open PR in flight, todo = open issue/request. Seeded 2026-07-10 from 131 merged
+      PRs, 161 open PRs, 150 open issues.'
+    status: in_progress
+    start_date: '2026-07-10'
+    target_completion: '2026-12-31'
+    stories:
+      s1:
+        id: s1
+        title: 'S1: Harness Portability'
+        description: Run Superpowers on every agent runtime and OS. The single
+          largest cluster of upstream activity — Codex, Windows hooks, and a
+          long tail of requested harnesses.
+        status: in_progress
+        success_criteria:
+          - Bootstrap auto-loads on session start for each supported harness
+          - Windows hook execution robust across path/shell edge cases
+          - New-harness onboarding is documented and repeatable
+        projects:
+          codex-integration:
+            id: codex-integration
+            title: Codex integration
+            description: 'Native Codex plugin: hooks, skill discovery, marketplace
+              packaging, subagent lifecycle.'
+            status: in_progress
+            sequence: 1
+            features:
+              codex-native-integration:
+                id: codex-native-integration
+                title: Native Codex plugin hooks + skill discovery
+                description: 'Migrate from bootstrap CLI to native skill discovery
+                  and native plugin hooks; marketplace manifest. PRs #540, #430, #1829,
+                  #1876, #1877.'
+                status: done
+                sequence: 1
+                docs_ref: https://github.com/obra/superpowers/pull/1876
+              codex-sessionstart-stability:
+                id: codex-sessionstart-stability
+                title: Codex SessionStart hook stability
+                description: 'Stop the SessionStart bootstrap re-firing on resume;
+                  suppress empty-hooks auto-discovery. PRs #1838, #1879, #1880, #1897.'
+                status: done
+                sequence: 2
+                docs_ref: https://github.com/obra/superpowers/pull/1897
+              codex-deferred-tools-docs:
+                id: codex-deferred-tools-docs
+                title: Document Codex deferred tool mapping
+                description: 'Document deferred subagent tool discovery/mapping for
+                  Codex. PRs #1926, #1928, #1662.'
+                status: in_progress
+                sequence: 3
+                docs_ref: https://github.com/obra/superpowers/pull/1928
+              codex-subagent-lifecycle:
+                id: codex-subagent-lifecycle
+                title: Codex subagent lifecycle
+                description: 'Close completed subagents after results consumed; fix
+                  ChatGPT 5.6 subagent behaviour. Issues #1927, #1960.'
+                status: todo
+                sequence: 4
+                docs_ref: https://github.com/obra/superpowers/issues/1960
+              codex-windows-sandbox:
+                id: codex-windows-sandbox
+                title: Codex hook on Windows sandbox
+                description: 'SessionStart hook fails on Windows when run-hook.cmd
+                  invokes Git Bash; plugin hook does not execute on Codex app. Issues
+                  #1867, #1827.'
+                status: todo
+                sequence: 5
+                docs_ref: https://github.com/obra/superpowers/issues/1867
+            summary: 'Making Superpowers work under the OpenAI Codex CLI/app harness:
+              SessionStart hook registration, portal packaging, deferred-tool discovery,
+              subagent lifecycle. Core integration shipped; remaining open items are
+              Windows-specific Codex hook failures and doc/behaviour refinements.'
+            cluster: 'Shipped PRs: #1876/#1877/#1879/#1880 (arittr, merged), release
+              #1897 (obra, merged, v6.1.1). Open docs PRs: #1928/#1926 (2023Anita),
+              #1662. Open issues: #1927 (close subagents), #1960 (GPT-5.6 subagent
+              break), #1867/#1827 (Windows Codex hook fail).'
+            signal: 'AVOID for core: maintainer obra owns/ships Codex (release #1897
+              merged, arittr fixes merged). Remaining open items are issues + community
+              docs PRs. #1867/#1827 are really Windows-hook bugs. Shipped-in v6.1.1.'
+            context_captured: '2026-07-10'
+          windows-hook-robustness:
+            id: windows-hook-robustness
+            title: Windows hook robustness
+            description: Make plugin hook execution reliable across Windows
+              path, shell, and username edge cases.
+            status: in_progress
+            sequence: 2
+            features:
+              windows-hook-execution:
+                id: windows-hook-execution
+                title: Core Windows hook execution
+                description: 'SessionStart hook execution + polyglot wrapper for Windows/PowerShell/MSYS2.
+                  PRs #1054, #523, #331, #134, #428, #427.'
+                status: done
+                sequence: 1
+                docs_ref: https://github.com/obra/superpowers/pull/1054
+              git-bash-discovery:
+                id: git-bash-discovery
+                title: Per-user Git Bash discovery
+                description: 'Discover per-user Git install (%LOCALAPPDATA%) and skip
+                  the WSL bash stub. PR #1864, issue #1863.'
+                status: in_progress
+                sequence: 2
+                docs_ref: https://github.com/obra/superpowers/pull/1864
+              paren-path-regression:
+                id: paren-path-regression
+                title: Parenthesis-in-path hook failure
+                description: "SessionStart hook fails when plugin path contains '('
+                  — regression variant of #51. Issue #1918."
+                status: todo
+                sequence: 3
+                docs_ref: https://github.com/obra/superpowers/issues/1918
+              powershell-invocation-edges:
+                id: powershell-invocation-edges
+                title: PowerShell invocation edge cases
+                description: 'run-hook.cmd under PowerShell needs call operator; VS
+                  Code Copilot syntax error; usernames with spaces; node loader error.
+                  Issues #1751, #1225, #1142, #1554.'
+                status: todo
+                sequence: 4
+                docs_ref: https://github.com/obra/superpowers/issues/1751
+            summary: 'Chronic SessionStart hook failures on Windows: run-hook.cmd
+              breaks when the plugin/profile path contains a space or parenthesis
+              (cmd.exe word-splitting), under PowerShell (missing call operator),
+              under Git Bash/WSL stub, and in Cursor/Codex. The single most-reported
+              problem in the repo (#51 reported ~29 times).'
+            cluster: 'Open PR #1864 (citizen204, per-user Git Bash / skip WSL stub).
+              Related open PRs #1226 (VS Code Copilot), #1753 (docs). Open issues
+              #1918 (paren regression on 6.1.1), #1751 (PowerShell call operator),
+              #1142/#1225/#1554. Canonical #51 (space in path). No obra-authored fix
+              PR for the core path-parsing bug.'
+            signal: 'CONTESTED (1 community fix PR #1864, unmerged) but NOT maintainer-owned.
+              Severity HIGH — chronic, ~29 reports, active 6.1.1 regression #1918.
+              Genuine gap: no PR cleanly fixes the paren/space cmd.exe parsing. Viable
+              target IF differentiated from #1864 and covers paren case. NOTE: Windows
+              repro — hard to verify on Linux.'
+            context_captured: '2026-07-10'
+          new-harness-onboarding:
+            id: new-harness-onboarding
+            title: New-harness onboarding
+            description: Documented, repeatable path to add a new agent runtime,
+              plus the long tail of requested harnesses.
+            status: in_progress
+            sequence: 3
+            features:
+              harness-porting-guide:
+                id: harness-porting-guide
+                title: Porting-to-new-harness guide
+                description: "'Porting Superpowers to a New Harness' guide + agent-neutral,
+                  source-verified per-runtime tool refs. PRs #1656, #1486."
+                status: done
+                sequence: 1
+                docs_ref: https://github.com/obra/superpowers/pull/1656
+              established-harnesses:
+                id: established-harnesses
+                title: Established harness support
+                description: 'Shipped: OpenCode, Cursor, Kimi Code, Factory Droid,
+                  Antigravity, Gemini CLI, Pi. PRs #1673, #1657, #1137, #1079, #467,
+                  #330, #1499.'
+                status: done
+                sequence: 2
+                docs_ref: https://github.com/obra/superpowers/pull/1657
+              hermes-harness:
+                id: hermes-harness
+                title: Hermes Agent harness
+                description: 'Native Hermes Agent harness with on_session_start bootstrap
+                  injection. PRs #1922, #1892, #1861, #881; issues #1859, #1581.'
+                status: in_progress
+                sequence: 3
+                docs_ref: https://github.com/obra/superpowers/pull/1922
+              requested-harnesses:
+                id: requested-harnesses
+                title: Requested harness long-tail
+                description: 'Open requests/PRs: Qwen Code, Trae, Junie, Kiro, DeepSeek
+                  TUI, Qoder, CodeBuddy, Continue, Crush, Mistral Vibe, ECA, Grok
+                  CLI, oh-my-pi, OpenClaw, Lingma, Qodercli, Kilocode. Issues/PRs
+                  #1136, #776, #1822, #503, #1587, #1148, #1500, #302, #580, #1024,
+                  #1686, #1919, #1941, #641, #1262.'
+                status: todo
+                sequence: 4
+                docs_ref: https://github.com/obra/superpowers/issues/503
+            summary: Long tail of requests/PRs to add new agent harnesses
+              (Hermes, ECA, Junie, Copilot, etc.) plus the general onboarding
+              pattern of loading the using-superpowers bootstrap at session
+              start so skills auto-trigger. Each new harness requires an
+              end-to-end acceptance-test transcript per CLAUDE.md.
+            cluster: 'Hermes: THREE competing open PRs #1922 (kumarabd), #1892 (pandaliu00),
+              #1861 (pixeru). Other open harness PRs: #1686 (ECA), #1477 (Junie),
+              #1226 (Copilot). Cited #1656/#1486/#1673/#1919/#1941 are open harness
+              requests. No obra-authored harness PR.'
+            signal: "AVOID Hermes — CONTESTED (3 competing PRs). Other harnesses each
+              already have 1 open PR (ECA #1686, Junie #1477). Not maintainer-owned
+              but crowded; any new-harness PR MUST include the 'react todo list' acceptance
+              transcript or it's closed. TARGET only for an un-PR'd harness."
+            context_captured: '2026-07-10'
+          gemini-support-churn:
+            id: gemini-support-churn
+            title: Gemini CLI support churn
+            description: 'Notable saga: Gemini CLI support removed as EOLed, then
+              reverted/restored after user pushback.'
+            status: done
+            sequence: 4
+            features:
+              gemini-cli-lifecycle:
+                id: gemini-cli-lifecycle
+                title: Remove-then-restore Gemini CLI
+                description: 'Removed Gemini CLI support (#1846) then reverted the
+                  removal (#1959); tracked by request #1954.'
+                status: done
+                sequence: 1
+                docs_ref: https://github.com/obra/superpowers/pull/1959
+            summary: "Whiplash over Gemini CLI support: maintainer removed it believing
+              Google EOL'd it, then the community pushed back that gemini-cli is still
+              supported and the only harness available in many enterprise environments,
+              and it was reverted/restored."
+            cluster: '#1846 (obra, merged 2026-06-25, remove). #1959 (ada-sen, merged
+              2026-07-10, revert/restore). #1954 (richard-morton, open issue requesting
+              restore, enterprise lock-out).'
+            signal: "AVOID — already RESOLVED. Removal #1846 reverted by merged #1959
+              on 2026-07-10. Nothing to contribute; #1954's request is satisfied (issue
+              may just need closing). Shipped-in: reverted via #1959."
+            context_captured: '2026-07-10'
+          non-git-vcs:
+            id: non-git-vcs
+            title: Non-git VCS support
+            description: Support version-control systems beyond git, and degrade
+              gracefully with none.
+            status: todo
+            sequence: 5
+            features:
+              jj-vcs-support:
+                id: jj-vcs-support
+                title: Jujutsu (jj) VCS support
+                description: "Add jj VCS support alongside git; handle no-VCS repos.
+                  PR #1138, issue #1140, plus 'skills should not specify git workflows'
+                  #1856."
+                status: in_progress
+                sequence: 1
+                docs_ref: https://github.com/obra/superpowers/pull/1138
+            summary: 'Requests to decouple Superpowers from hard git assumptions:
+              add Jujutsu (jj) VCS support, handle projects with no git/VCS at all,
+              and stop skills from prescribing git-specific workflows. Touches deliberately-tuned
+              skill content.'
+            cluster: 'Open PR #1138 (zachthieme, add jj alongside git, not draft,
+              unmerged). Open issues #1140 (No git or VCS), #1856 (skills should not
+              specify git workflows). No obra-authored PR; no competing PRs.'
+            signal: "MIXED. jj support CONTESTED-lite — open PR #1138 already attempts
+              it; don't duplicate. Broader git-decoupling (#1856/#1140) un-contested
+              and un-PR'd BUT high-risk: rewrites tuned skill content requiring extensive
+              eval evidence. Not maintainer-owned. Proceed only with evals."
+            context_captured: '2026-07-10'
+        sequence: 1
+      s2:
+        id: s2
+        title: 'S2: Subagent-Driven Development Hardening'
+        description: Make the core multi-agent execution engine (SDD) safe,
+          isolated, cost-aware, and honest. The densest cluster of open bugs and
+          in-flight PRs upstream.
+        status: in_progress
+        sequence: 2
+        success_criteria:
+          - Concurrent runs on one checkout never collide on scratch artifacts
+          - Dispatch decisions match task size and effort
+          - Reviews cannot pass on unchanged or no-op work
+        projects:
+          workspace-isolation:
+            id: workspace-isolation
+            title: Workspace isolation
+            description: Stop SDD scratch artifacts (.superpowers/sdd) from
+              colliding across concurrent sessions and successive plans.
+            status: in_progress
+            sequence: 1
+            features:
+              plan-scoped-artifacts:
+                id: plan-scoped-artifacts
+                title: Plan-scoped artifacts + self-identifying ledger
+                description: "Namespace scratch/reports by plan identity so a second
+                  run doesn't read the previous plan's progress.md. PRs #1943, #1949,
+                  #1938, #1905, #1858; issues #1936, #1816."
+                status: in_progress
+                sequence: 1
+                docs_ref: https://github.com/obra/superpowers/pull/1943
+              session-scoped-workspace:
+                id: session-scoped-workspace
+                title: Session-scoped workspace
+                description: 'Session-scope the SDD workspace so concurrent sessions
+                  on one checkout stop colliding — regression from #1780 (6.1.0).
+                  PR #1952; issues #1942, #1888.'
+                status: in_progress
+                sequence: 2
+                docs_ref: https://github.com/obra/superpowers/issues/1942
+              artifact-pruning:
+                id: artifact-pruning
+                title: Scratch artifact pruning
+                description: '.superpowers/sdd scratch artifacts are never pruned
+                  and silently collide across efforts. Issue #1888.'
+                status: todo
+                sequence: 3
+                docs_ref: https://github.com/obra/superpowers/issues/1888
+            summary: "One underlying problem: SDD scratch under .superpowers/sdd collides
+              and accumulates across efforts and across concurrent sessions on one
+              checkout. Artifacts are keyed only by task-N (not by effort/plan), so
+              a new plan's Task 1 clobbers the prior effort's task-1-report.md; progress.md
+              ledger carries no plan identity so a second run skips the new plan's
+              tasks; nothing prunes the dir."
+            cluster: 'Issues: #1888 (never pruned + task-N clobber, glen-84), #1936
+              (ledger no plan identity), #1942 (concurrent-session collision, regression
+              of #1780), #975 (session storage defaults to working tree). Fix PRs:
+              #1943, #1938, #1905, #1949, #1952.'
+            signal: "AVOID as a contribution target: maintainer obra owns fix PR #1943
+              (2026-07-06) and 4+ contributor PRs already compete here — high duplicate-rejection
+              risk. Community flagged 'pretty severe'."
+            context_captured: 2026-07-10 from issue bodies + cross-reference
+              timeline
+          dispatch-intelligence:
+            id: dispatch-intelligence
+            title: Dispatch intelligence
+            description: Match dispatch decisions (inline vs fan-out, effort
+              level, token spend) to task size and complexity.
+            status: in_progress
+            sequence: 2
+            features:
+              reasoning-effort-dimension:
+                id: reasoning-effort-dimension
+                title: Per-task reasoning-effort dimension
+                description: 'SDD subagents run at session effort regardless of task
+                  complexity; add an effort dimension to dispatch. PR #1948, issue
+                  #1747.'
+                status: in_progress
+                sequence: 1
+                docs_ref: https://github.com/obra/superpowers/pull/1948
+              inline-vs-fanout-threshold:
+                id: inline-vs-fanout-threshold
+                title: Inline-vs-fan-out threshold
+                description: "Small, tightly-coupled changes pay fan-out overhead
+                  for isolation they don't need; bias toward inline / Workflow fan-outs
+                  appropriately. Issues #1917, #1835, #1120, #1058, #995."
+                status: todo
+                sequence: 2
+                docs_ref: https://github.com/obra/superpowers/issues/1917
+              token-budget-conservation:
+                id: token-budget-conservation
+                title: Token-budget conservation
+                description: 'Reduce reviewer subagent verbosity and runaway token
+                  usage; a simple plan can consume a full 5h budget. Issues #1930,
+                  #1152, #1194.'
+                status: todo
+                sequence: 3
+                docs_ref: https://github.com/obra/superpowers/issues/1152
+            summary: "SDD dispatches every subagent at session-level effort/model
+              and always fans out, so cost/latency don't match task complexity. Three
+              axes: no reasoning-effort dial per role (#1747), no inline-vs-fanout
+              threshold for small tightly-coupled changes (#1917), review runs even
+              for 'easy' tasks (#1120)."
+            cluster: 'Open issues #1747 (effort dimension), #1917 (inline-vs-dispatch
+              threshold), #1120 (skip reviews for easy tasks). Open PR #1948 (gborges0727,
+              community) implements #1747. No obra-authored fix PR. #1917 has NO PR
+              yet.'
+            signal: "MIXED. #1747 CONTESTED-lite: open community PR #1948 already
+              implements it — don't duplicate. #1917 inline-vs-fanout threshold is
+              TARGET-CANDIDATE: open, no PR, docs-only routing note. Severity med
+              (cost/latency, not correctness). No maintainer ownership."
+            context_captured: '2026-07-10'
+          review-integrity:
+            id: review-integrity
+            title: Review integrity
+            description: 'Make in-loop review real: no phantom completion, no fabricated
+              dialogues, allowlist-friendly review-package, safe parallel dispatch.'
+            status: in_progress
+            sequence: 3
+            features:
+              task-scoped-review:
+                id: task-scoped-review
+                title: Task-scoped review dispatch
+                description: 'Single task reviewer + review-package script, eval-tuned;
+                  cost-tiering + pre-flight plan review. PRs #1717, #1744.'
+                status: done
+                sequence: 1
+                docs_ref: https://github.com/obra/superpowers/pull/1717
+              review-package-cwd:
+                id: review-package-cwd
+                title: review-package cwd/allowlisting
+                description: "Add -C DIR flag so review-package stops forcing an un-allowlistable
+                  'cd <repo>; review-package' compound. PR #1809, issue #1799."
+                status: in_progress
+                sequence: 2
+                docs_ref: https://github.com/obra/superpowers/pull/1809
+              phantom-completion-guard:
+                id: phantom-completion-guard
+                title: Phantom-completion guard
+                description: 'Reviewer concurs on unchanged tree when implementer
+                  no-ops; orchestrator fabricates subagent dialogues; hard-gate review
+                  skipping. Issues #1701, #1749, #463; PR #613.'
+                status: todo
+                sequence: 3
+                docs_ref: https://github.com/obra/superpowers/issues/1749
+              parallel-dispatch-isolation:
+                id: parallel-dispatch-isolation
+                title: Parallel dispatch with worktree isolation
+                description: 'Allow parallel dispatch with worktree isolation; persistent
+                  validator pool (Team Mode). PRs #1534, #578.'
+                status: in_progress
+                sequence: 4
+                docs_ref: https://github.com/obra/superpowers/pull/1534
+            summary: "SDD review gate can be bypassed or faked: controller skips reviewer
+              dispatch (#463), reviewer concurs on an unchanged tree when implementer
+              silently no-ops (#1701), orchestrator fabricates entire subagent dialogues
+              without calling the Agent tool (#1749). A correctness/integrity hole
+              ('phantom completion')."
+            cluster: 'Shipped: #1717 & #1744 merged by obra (task-scoped review +
+              cost-tiering). Open issues #463, #1701 (theoju), #1749 (wokito). Open
+              PRs (none by obra): #578 (STRML, phantom-completion + validator pool),
+              #613 (philippevezina, hard gates), #1809 (citizen204, review-package
+              -C DIR), #1534 (xuefei-wang, parallel dispatch).'
+            signal: 'CONTESTED — core review-skip/phantom-completion fix has ≥2 competing
+              open community PRs (#578, #613), none maintainer-owned. High severity
+              (correctness). AVOID re-solving review-skipping; #1749 (fabricated dispatch)
+              has an open issue but no PR — possible narrow TARGET but overlaps #578.'
+            context_captured: '2026-07-10'
+      s3:
+        id: s3
+        title: 'S3: Planning & Brainstorming Quality'
+        description: Sharpen the up-front skills — brainstorming, writing-plans,
+          writing-skills — so specs and plans are grounded, robust to long runs,
+          and leave room for executor judgment.
+        status: in_progress
+        sequence: 3
+        success_criteria:
+          - Brainstorming recommendations grounded in named evidence
+          - Long plans write incrementally without watchdog stalls
+          - Skill guidance keyed to standards, not arbitrary counts
+        projects:
+          brainstorming:
+            id: brainstorming
+            title: Brainstorming
+            description: Visual companion, question routing, grounded
+              recommendations, and output-path hygiene.
+            status: in_progress
+            sequence: 1
+            features:
+              visual-companion:
+                id: visual-companion
+                title: Visual companion hardening
+                description: 'Harden/modernize the brainstorming visual companion
+                  (auth, lifecycle, reconnect, WebSocket frame caps) + Alpine-driven
+                  interactive rework. PRs #1720, #1555, #509, #1639.'
+                status: done
+                sequence: 1
+                docs_ref: https://github.com/obra/superpowers/pull/1720
+              askuserquestion-regression:
+                id: askuserquestion-regression
+                title: AskUserQuestion routing regression
+                description: 'v6.0.0 platform-neutral reframe makes Claude Code overuse
+                  AskUserQuestion / route conversational asks wrong (regression vs
+                  5.1.0). Issue #1773, PR #1857, issue #1222.'
+                status: todo
+                sequence: 2
+                docs_ref: https://github.com/obra/superpowers/issues/1773
+              grounded-recommendations:
+                id: grounded-recommendations
+                title: Grounded recommendations
+                description: 'Ground recommendations in named comparison dimensions/evidence,
+                  not surface guesses; add research-existing-solutions step. PRs #1512,
+                  #386; issues #1266, #983.'
+                status: in_progress
+                sequence: 3
+                docs_ref: https://github.com/obra/superpowers/pull/1512
+              brainstorm-output-paths:
+                id: brainstorm-output-paths
+                title: Output-path hygiene
+                description: "Respect CLAUDE.md output paths; don't default session
+                  storage to the working tree / leak plans into published docs. Issues
+                  #939, #975, #1690."
+                status: todo
+                sequence: 4
+                docs_ref: https://github.com/obra/superpowers/issues/939
+              companion-security-hardening:
+                id: companion-security-hardening
+                title: 'Brainstorm companion: remove shell-exec injection shape'
+                description: "server.cjs:540 shell-execs BRAINSTORM_OPEN_CMD via cp.exec(cmd
+                  + url) — flagged High by an org security audit, blocking plugin
+                  adoption. Fix: parse the command into argv and use cp.execFile (no
+                  shell), matching the built-in launcher path two lines below. Issue
+                  #1957 (mxcoder, filed 2026-07-11, unclaimed, 0 comments, no PR).
+                  THIS FORK'S FIRST CONTRIBUTION TARGET."
+                status: in_progress
+                sequence: 5
+                docs_ref:
+                  docs/prds/PRD-001-brainstorm-companion-launcher-injection-shape.md,
+                  docs/designs/DD-001-brainstorm-launcher-shell-free-argv.md,
+                  docs/adr/ADR-001-brainstorm-launcher-shell-free-argv.md
+            summary: 'Two live problem themes: (1) v6.0.0 platform-neutral bootstrap
+              made Claude Code over-use AskUserQuestion for conversational asks (regression
+              vs 5.1.0); (2) session/output storage ignores CLAUDE.md Output Paths
+              and defaults into the working tree (docs/superpowers/), leaking internal
+              specs into published docs. Visual-companion hardening already shipped.'
+            cluster: 'Issues: #1773 (obra, AskUserQuestion regression); output-path
+              dupes #939, #975, #1690. PRs: #1720 MERGED obra (visual companion);
+              #1857 OPEN (mvanhorn, stop routing conversational asks); #1512 OPEN
+              draft (j7an, ground recs in dimensions).'
+            signal: 'CONTESTED (2 competing open PRs #1857,#1512 by non-maintainers)
+              + maintainer-active: obra filed anchor regression #1773 and owns visual
+              companion. Skill-content — eval evidence required, high bar. Output-path
+              cluster (#939/#975/#1690) is unclaimed by PR = TARGET-CANDIDATE, high
+              user severity.'
+            context_captured: '2026-07-10'
+          writing-plans:
+            id: writing-plans
+            title: Writing plans
+            description: Robust long-plan authoring, spec traceability, review
+              gates, and executor latitude.
+            status: in_progress
+            sequence: 2
+            features:
+              incremental-write-stall:
+                id: incremental-write-stall
+                title: Incremental write to avoid stall watchdog
+                description: "Write plan file incrementally so xhigh-effort sessions
+                  don't stall mid-stream against the 5-min watchdog. PR #1865; issues
+                  #1860, #1947, #809, #1042."
+                status: in_progress
+                sequence: 1
+                docs_ref: https://github.com/obra/superpowers/pull/1865
+              spec-traceability:
+                id: spec-traceability
+                title: Spec→test traceability
+                description: 'Optional Invariants / Global Constraints / Interfaces
+                  + evidence summary for spec→test traceability. PRs #1831, #1808,
+                  #1746, #1627.'
+                status: in_progress
+                sequence: 2
+                docs_ref: https://github.com/obra/superpowers/pull/1831
+              plan-review-gate:
+                id: plan-review-gate
+                title: Plan review / coverage gate
+                description: 'Mandatory reviewing-plans gate + verifying-plan-coverage
+                  skill proving a plan covers 100% of its spec; improved plan review
+                  + pre-mortems. PRs #1062, #1704, #1644, #1898.'
+                status: in_progress
+                sequence: 3
+                docs_ref: https://github.com/obra/superpowers/pull/1704
+              executor-judgment:
+                id: executor-judgment
+                title: Executor judgment latitude
+                description: "Plans over-specify implementation, leaving no room for
+                  executor judgment; respect user-defined execution modes; discovery
+                  sub-steps aren't placeholders. Issues #895, #1044, #1295."
+                status: todo
+                sequence: 4
+                docs_ref: https://github.com/obra/superpowers/issues/895
+            summary: 'Cluster spans three themes: (1) spec→test traceability / reference
+              discipline; (2) a mandatory plan-review gate before execution; (3) long-plan
+              reliability — writes stall the watchdog and consecutive Write calls
+              fail. Plus over-specification complaints and respecting user execution
+              modes.'
+            cluster: 'obra owns OPEN draft PR #1746 (Global Constraints + Interfaces).
+              Competing traceability PRs #1831, #1808. Review-gate PRs #1062, #1704,
+              #1644 (prior closed #1473). Reliability #1865 (incremental write) vs
+              issues #809, #1042. Issues #895, #1044, #1295.'
+            signal: 'AVOID traceability sub-area — maintainer-owned (obra open PR
+              #1746). Review-gate CONTESTED (3 competing open PRs + closed #1473)
+              — crowded, avoid. Skill-content eval bar applies. Reliability/stall
+              (#1865 vs #809,#1042) is the cleanest TARGET-CANDIDATE: real bug, one
+              PR, high severity.'
+            context_captured: '2026-07-10'
+          writing-skills:
+            id: writing-skills
+            title: Writing skills
+            description: 'Meta-skill guidance: standard-based anchors, script-vs-prose,
+              frontmatter correctness.'
+            status: in_progress
+            sequence: 3
+            features:
+              standard-based-anchors:
+                id: standard-based-anchors
+                title: Standard-based anchors (not counts)
+                description: "Replace '3+ combined pressures' / count anchors with
+                  standard-based language; match guidance form to failure type. PRs
+                  #1692, #1741; issue #1487."
+                status: in_progress
+                sequence: 1
+                docs_ref: https://github.com/obra/superpowers/pull/1692
+              script-vs-prose:
+                id: script-vs-prose
+                title: Script-vs-prose guidance
+                description: 'Guidance on when to extract deterministic steps to scripts
+                  vs prose. Issue #1267, PR #1274.'
+                status: todo
+                sequence: 2
+                docs_ref: https://github.com/obra/superpowers/issues/1267
+              frontmatter-guidance:
+                id: frontmatter-guidance
+                title: Frontmatter correctness
+                description: "Correct false 'only two fields' claim; YAML frontmatter
+                  quoting guidance; @-ref → markdown link. PRs #903, #631; issues
+                  #955, #1028."
+                status: done
+                sequence: 3
+                docs_ref: https://github.com/obra/superpowers/pull/903
+            summary: "Meta-skill guidance gaps: (1) 'count' anchors (e.g. '3+ combined
+              pressures') substitute a number for a real standard across ~5 sites;
+              (2) no guidance on when to extract deterministic steps to scripts vs
+              prose; (3) YAML frontmatter quoting for description values. Several
+              fixes already merged."
+            cluster: 'Merged #903, #631, #1741 (obra). Open issues #1487 (obra, count
+              anchors), #1267 (script-vs-prose), YAML-quoting dupes #955 + #1028.
+              Open PRs #1692 (citizen204, standard-based anchors, addresses #1487),
+              #1274 (script vs prose, addresses #1267).'
+            signal: 'TARGET-CANDIDATE but narrow: no open maintainer-authored PR;
+              obra merged #1741 and filed #1487 but left the anchor fix to community
+              (#1692 in flight). #1274 covers script-vs-prose. YAML-quoting (#955/#1028)
+              unclaimed by PR = openest slot. Skill-content = highest eval bar; before/after
+              evidence mandatory.'
+            context_captured: '2026-07-10'
+      s4:
+        id: s4
+        title: 'S4: Verification & Review Pipeline'
+        description: Prove the work is correct end-to-end — verification gates,
+          a complete code-review skill chain, and TDD that protects (not
+          degrades) design.
+        status: in_progress
+        sequence: 4
+        success_criteria:
+          - No false success claims when a change is not actually verified
+          - Reviewer- and requester-side code-review skills both exist
+          - User-facing surfaces get acceptance validation alongside TDD
+        projects:
+          verification-gates:
+            id: verification-gates
+            title: Verification gates
+            description: Close the gap between 'code complete' and 'actually
+              verified', including user-facing acceptance.
+            status: in_progress
+            sequence: 1
+            features:
+              verification-before-completion:
+                id: verification-before-completion
+                title: No false success claims
+                description: "verification-before-completion allows false success
+                  when a provider change is not actually verified; reconcile with
+                  'do not re-run suite'. Issues #1754, #1961."
+                status: todo
+                sequence: 1
+                docs_ref: https://github.com/obra/superpowers/issues/1754
+              human-acceptance-matrix:
+                id: human-acceptance-matrix
+                title: Human acceptance matrix
+                description: 'Add a Human Acceptance Matrix for user-facing validation
+                  alongside TDD; Decision Ledger + Design-Fidelity Gate for UI decisions.
+                  Issues #1664, #1783.'
+                status: todo
+                sequence: 2
+                docs_ref: https://github.com/obra/superpowers/issues/1664
+              agentic-e2e-testing:
+                id: agentic-e2e-testing
+                title: Agentic end-to-end testing
+                description: 'agentic-end-to-end-testing skill + spec-derived scenario
+                  cards; E2E browser testing for web apps; test-scenario specs. PR
+                  #1931; issues #374, #966.'
+                status: in_progress
+                sequence: 3
+                docs_ref: https://github.com/obra/superpowers/pull/1931
+            summary: "Agents claim success without actually verifying outcomes (config/provider
+              changes, user-facing behaviour). Users want stronger acceptance gates
+              alongside TDD: human acceptance matrices, decision ledgers, E2E browser
+              checks, and reconciling SDD's 'don't re-run suite' with verification-before-completion."
+            cluster: 'Open issues #1754 (false-success on unverified config), #1664
+              (Human Acceptance Matrix), #1961 (SDD vs verification conflict), #1783
+              (Decision Ledger), #374 (E2E browser). Open PRs #1931 (obra, agentic-e2e
+              skill), #1755 (noaft, outcome checks), #966 (test-scenario-specs), #1112
+              (acceptance-criteria).'
+            signal: 'AVOID — obra owns OPEN fix PR #1931 (agentic-end-to-end-testing)
+              covering the core acceptance-gate direction. Also CONTESTED: #1755,
+              #966, #1112 are competing community skill PRs. High-value theme but
+              maintainer-claimed; do not add another skill.'
+            context_captured: '2026-07-10'
+          code-review-chain:
+            id: code-review-chain
+            title: Code-review skill chain
+            description: 'Complete the review chain: requester-side, reviewer-side,
+              all PR comment types, parameterized dispatch.'
+            status: in_progress
+            sequence: 2
+            features:
+              code-reviewer-lift:
+                id: code-reviewer-lift
+                title: Lift code-reviewer into requesting-code-review
+                description: 'Lift superpowers:code-reviewer agent into the requesting-code-review
+                  skill; document review system + workflow enforcement. PRs #1299,
+                  #334.'
+                status: done
+                sequence: 1
+                docs_ref: https://github.com/obra/superpowers/pull/1299
+              pr-comment-types:
+                id: pr-comment-types
+                title: Fetch all PR comment types
+                description: 'receiving-code-review should fetch all three GitHub
+                  PR comment types. PR #1729, issue #701.'
+                status: in_progress
+                sequence: 2
+                docs_ref: https://github.com/obra/superpowers/pull/1729
+              reviewer-side-skill:
+                id: reviewer-side-skill
+                title: Reviewer-side + parameterized review
+                description: 'Add conducting-code-review (reviewer-side) skill; parameterized
+                  code-review dispatch to reduce prompt duplication. PR #814; issues
+                  #593, #1258.'
+                status: todo
+                sequence: 3
+                docs_ref: https://github.com/obra/superpowers/pull/814
+            summary: 'The code-review skills (requesting/receiving/conducting) have
+              gaps: agents fetch only inline PR comments and miss the other two GitHub
+              comment types; receiving-code-review tuned for general not subagent
+              reviews; requests for a reviewer-side skill and parameterized dispatch.'
+            cluster: 'Open issues #701 (fetch all 3 PR comment types), #593 (subagent-review
+              gap), #1258 (parameterized dispatch); #334 MERGED obra baseline. Merged
+              #1299 (obra, lifted code-reviewer into requesting skill). Open PRs #1729
+              (comment-types for #701), #814 (reviewer-side skill). #712 & #812 CLOSED
+              duplicate attempts at #701.'
+            signal: 'CONTESTED — 2 competing open community PRs (#1729, #814) plus
+              2 already-CLOSED attempts (#712, #812) at #701, signalling maintainer
+              resistance to prior framings. obra not authoring an open fix (only merged
+              #1299). Real but crowded/graveyard-prone; needs a distinct approach
+              vs closed PRs.'
+            context_captured: '2026-07-10'
+          tdd:
+            id: tdd
+            title: TDD quality
+            description: Reframe testing anti-patterns and stop TDD from
+              degrading domain design.
+            status: in_progress
+            sequence: 3
+            features:
+              testing-antipatterns-reframe:
+                id: testing-antipatterns-reframe
+                title: Reframe testing anti-patterns
+                description: "Reframe TDD's testing-anti-patterns as writing-good-tests;
+                  link the reference. PR #1935; PR #1532."
+                status: in_progress
+                sequence: 1
+                docs_ref: https://github.com/obra/superpowers/pull/1935
+              tdd-refactoring-quality:
+                id: tdd-refactoring-quality
+                title: TDD refactoring vs domain design
+                description: 'TDD-driven refactoring may degrade domain design (parameter
+                  pollution, helper leakage); complete the TDD cycle in plan gen/exec.
+                  Issue #1248, PR #711.'
+                status: todo
+                sequence: 2
+                docs_ref: https://github.com/obra/superpowers/issues/1248
+            summary: "TDD skill refinements: testing-anti-patterns being reframed
+              as positive 'writing-good-tests' guidance; a reported failure mode where
+              making code testable degrades domain design (parameter pollution, helper
+              leakage); completing the red/green cycle inside plan generation/execution."
+            cluster: 'Open issue #1248 (refactoring degrades domain design). Open
+              PR #1935 (obra, reframe anti-patterns as writing-good-tests); #1532
+              MERGED (arittr, linked anti-patterns ref); #711 OPEN (complete TDD cycle
+              in plan gen/exec).'
+            signal: 'AVOID — obra owns OPEN fix PR #1935 reframing the anti-patterns
+              content, the central lever here. #711 (community) already competes on
+              the cycle-completion angle. Behavior-shaping TDD content has a very
+              high change bar; maintainer-claimed.'
+            context_captured: '2026-07-10'
+      s5:
+        id: s5
+        title: 'S5: Evals & Quality Infrastructure'
+        description: The behavioral-eval harness and cross-harness lint that
+          keep skill changes honest — skills are behavior-shaping code, so they
+          need real evals and portability checks.
+        status: in_progress
+        sequence: 5
+        success_criteria:
+          - Skill changes gated by eval evidence
+          - Skills lint clean across every supported harness
+        projects:
+          evals-harness:
+            id: evals-harness
+            title: Evals harness
+            description: The superpowers-evals harness (lifted from drill) that
+              drives real tmux sessions and judges skill compliance.
+            status: in_progress
+            sequence: 1
+            features:
+              evals-submodule:
+                id: evals-submodule
+                title: Evals harness as submodule
+                description: 'Lift drill into evals/ harness; move eval harness to
+                  a submodule; add pi extension + eval backend. PRs #1488, #1541,
+                  #1499.'
+                status: done
+                sequence: 1
+                docs_ref: https://github.com/obra/superpowers/pull/1488
+              eval-gated-refactors:
+                id: eval-gated-refactors
+                title: Eval-gated skill refactors
+                description: 'Strip social-proof/recap detritus and fold index-style
+                  sections across many skills, gated by evals. PRs #1934, #1932.'
+                status: in_progress
+                sequence: 2
+                docs_ref: https://github.com/obra/superpowers/pull/1934
+            summary: The eval harness (lifted from 'drill' into evals/) is the
+              gate for behavior-changing skill edits. Active work uses it as the
+              review arm for skill-content refactors that must prove they don't
+              regress agent behaviour before merge.
+            cluster: "Shipped #1488 MERGED obra (lift drill into evals/). Open PRs
+              #1932 and #1934 BOTH authored by obra (draft, eval-gated: 'hold merge
+              until run through evals'). No competing community PRs."
+            signal: 'AVOID — maintainer-owned. obra authors both open PRs #1932 and
+              #1934 and merged the harness (#1488). Nothing for an outside contributor
+              to target here.'
+            context_captured: '2026-07-10'
+          portability-lint:
+            id: portability-lint
+            title: Portability & shell lint
+            description: Static checks that catch cross-harness and shell
+              regressions before they ship.
+            status: in_progress
+            sequence: 2
+            features:
+              cross-harness-lint:
+                id: cross-harness-lint
+                title: Cross-harness portability lint + shell lint
+                description: 'Cross-harness portability lint; shell lint script; resolve
+                  shellcheck warnings; portable timeout helper in tests. PRs #1603,
+                  #1676, #1826, #1909.'
+                status: in_progress
+                sequence: 1
+                docs_ref: https://github.com/obra/superpowers/pull/1603
+            summary: "Test/helper shell scripts aren't portable or clean across harnesses/shells:
+              shellcheck warnings in Claude Code test helpers (#1826), non-portable
+              timeout usage (#1909), a broader push for a cross-harness portability
+              lint (#1603). CI/dev-hygiene rather than user-facing behaviour."
+            cluster: 'Shipped #1676 MERGED (arittr, shell lint script). Open PRs,
+              all community (none obra): #1603 (mvanhorn, cross-harness lint), #1826
+              (creazyfrog, shellcheck warnings), #1909 (tianma-if, portable timeout
+              helper).'
+            signal: 'CONTESTED — 3 overlapping open community PRs (#1603, #1826, #1909)
+              on the same shell-lint/portability surface, no maintainer ownership.
+              Low severity (CI hygiene). Net-new lint scope beyond these could be
+              TARGET-CANDIDATE; plain shellcheck/timeout fixes already taken.'
+            context_captured: '2026-07-10'
+      s6:
+        id: s6
+        title: 'S6: New Skill Capabilities'
+        description: Expand the skill library beyond the core loop —
+          lifecycle/memory, analysis/audit, and orchestration skills that are
+          heavily requested but not yet in core.
+        status: in_progress
+        sequence: 6
+        success_criteria:
+          - Lifecycle events exposed for external plugin authors
+          - Cross-session memory/roadmap orchestration available
+          - Post-mortem and audit skills shipped
+        projects:
+          lifecycle-and-memory:
+            id: lifecycle-and-memory
+            title: Lifecycle & memory
+            description: User-defined workflow hooks, lifecycle events beyond
+              SessionStart, and persistent cross-agent memory.
+            status: in_progress
+            sequence: 1
+            features:
+              lifecycle-extension-system:
+                id: lifecycle-extension-system
+                title: Lifecycle extension system
+                description: 'Lifecycle event hooks for external plugin authors; expose
+                  events beyond SessionStart. PRs #1224, #1461; issues #1566, #1442.'
+                status: in_progress
+                sequence: 1
+                docs_ref: https://github.com/obra/superpowers/pull/1461
+              persistent-memory:
+                id: persistent-memory
+                title: Persistent cross-agent memory
+                description: 'RFC: persistent memory across Superpowers agents; project
+                  memory override for implementation strategy; accumulate learnings
+                  across tasks. Issues #1812, #846; PR #887.'
+                status: todo
+                sequence: 2
+                docs_ref: https://github.com/obra/superpowers/issues/1812
+              maintaining-roadmap:
+                id: maintaining-roadmap
+                title: Roadmap/kanban orchestration skill
+                description: 'maintaining-roadmap skill for cross-session priority
+                  orchestration; managing-kanban skill; plan-aware session handoff.
+                  Issues #1192; PRs #587, #931.'
+                status: todo
+                sequence: 3
+                docs_ref: https://github.com/obra/superpowers/issues/1192
+            summary: "Cross-session/cross-agent state that doesn't survive: users
+              re-explain project decisions when switching sessions/tools, and plugin
+              authors want to inject behaviour at lifecycle events beyond SessionStart.
+              Themes: persistent/portable memory, user-defined workflow hooks, cross-session
+              priority + roadmap orchestration, session handoff."
+            cluster: 'Issues #1812 (RFC persistent-memory via MCP), #1566/#1442 (lifecycle-events),
+              #1192 (maintaining-roadmap), #846 (project-memory-override), #601 (accumulate-learnings),
+              #931 (session-handoff). PRs #1224 (lifecycle-extension), #1461 (lifecycle-event-hooks),
+              #587 (managing-kanban). No obra PRs.'
+            signal: 'CONTESTED (2 competing open lifecycle-hook PRs #1224 & #1461,
+              near-identical). Persistent-memory RFC #1812 is MCP-based = zero-dependency-policy
+              risk (likely rejected as third-party). New-skill skepticism high. AVOID
+              direct duplication; hooks-substrate angle heavily occupied.'
+            context_captured: '2026-07-10'
+          analysis-and-audit:
+            id: analysis-and-audit
+            title: Analysis & audit skills
+            description: Post-mortem, AI-code auditing, and pre-brainstorm
+              framing skills.
+            status: in_progress
+            sequence: 2
+            features:
+              post-mortem-skill:
+                id: post-mortem-skill
+                title: Post-mortem / incident analysis
+                description: 'post-mortem analysis skill (4M framework) for production
+                  failures. PR #1008, issue #969.'
+                status: in_progress
+                sequence: 1
+                docs_ref: https://github.com/obra/superpowers/pull/1008
+              auditing-ai-code:
+                id: auditing-ai-code
+                title: Auditing AI-generated code
+                description: 'auditing-ai-generated-code skill; security-focused review
+                  guidance. PR #564, issue #1151.'
+                status: in_progress
+                sequence: 2
+                docs_ref: https://github.com/obra/superpowers/pull/564
+              vision-quest-prebrainstorm:
+                id: vision-quest-prebrainstorm
+                title: Pre-brainstorm / task triage
+                description: "'Vision Quest' pre-brainstorm skill; Option Zero forcing
+                  question; task triage before full workflow. Issues #1766, #834,
+                  #1061."
+                status: todo
+                sequence: 3
+                docs_ref: https://github.com/obra/superpowers/issues/1766
+            summary: 'Retrospective/audit-oriented skills: structured post-mortem
+              root-cause analysis (existing debugging skills produce shallow flat
+              observations), auditing AI-generated code, and pre-solution divergence
+              steps (vision-quest / Option-Zero / task-triage) that guard the front
+              of the workflow.'
+            cluster: 'Issues #969 (post-mortem/RCA), #1766 (Vision-Quest pre-brainstorm),
+              #834 (brainstorming Option-Zero), #1061 (task-triage), #1151 (security-expert,
+              low-quality). PRs #1008 (post-mortem-4M skill, closes #969), #564 (auditing-ai-generated-code).
+              No obra PRs.'
+            signal: "TARGET-CANDIDATE with caution: less contested (mostly single-author,
+              1 PR each). But #1008 & #564 already occupy post-mortem + audit — don't
+              duplicate. #834/#1766 are brainstorming enhancements not new skills
+              (better-received angle). New-skill skepticism applies; #1151 is slop."
+            context_captured: '2026-07-10'
+          orchestration:
+            id: orchestration
+            title: Orchestration skills
+            description: Resumable multi-agent pipelines and domain
+              context-provider conventions.
+            status: in_progress
+            sequence: 3
+            features:
+              orchestrator-driven-development:
+                id: orchestrator-driven-development
+                title: Resumable orchestrator-driven development
+                description: 'Resumable, observable multi-agent execution pipeline;
+                  execution orchestration for dependency-aware parallel execution;
+                  group-based execution. Issues #1725, #1251; PR #1117.'
+                status: todo
+                sequence: 1
+                docs_ref: https://github.com/obra/superpowers/issues/1725
+              context-provider-convention:
+                id: context-provider-convention
+                title: Context-provider convention
+                description: 'Context provider convention for domain-specific sub-agent
+                  protocols. PR #1129, issue #1128.'
+                status: in_progress
+                sequence: 2
+                docs_ref: https://github.com/obra/superpowers/pull/1129
+            summary: "Multi-agent execution orchestration: resumable/observable pipelines
+              (SDD can't surface subagent results and fabricates dialogues), dependency-aware
+              parallel dispatch, group-based execution to cut per-task overhead, and
+              a convention for injecting domain context into sub-agents before dispatch."
+            cluster: 'Issues #1725 (orchestrator-driven-development, related bug #1749),
+              #1251 (group-based-execution), #1128 (RFC context-provider). PRs #1117
+              (execution-orchestration), #1129 (context-provider, closes #1128). No
+              obra PRs. Prior CLOSED: #1944, #1276, #514, #61.'
+            signal: 'AVOID / CONTESTED: strong rejection history — 4 orchestration
+              PRs already CLOSED (#1944, #1276, #514, #61). Maintainers skeptical
+              of orchestration frameworks. Open PRs #1117 & #1129 occupy the space.
+              New-skill acceptance low; severity high (real bug #1749) but very hard
+              to land.'
+            context_captured: '2026-07-10'
+      s7:
+        id: s7
+        title: 'S7: Release, Docs & Community'
+        description: Ship it and govern contributions — release train, plugin
+          packaging, README translations, and the contribution rules that keep
+          the 94%-rejection firehose manageable.
+        status: in_progress
+        sequence: 7
+        success_criteria:
+          - Releases packaged cleanly across all harness portals
+          - Core docs available in major languages
+          - Contribution provenance disclosed and dev-branch targeting enforced
+        projects:
+          release-packaging:
+            id: release-packaging
+            title: Release & packaging
+            description: The 6.x release train and per-harness
+              plugin/marketplace manifests.
+            status: done
+            sequence: 1
+            features:
+              v6-release-train:
+                id: v6-release-train
+                title: 6.x release train
+                description: '6.0.0 → 6.1.1 releases incl. Codex portal packaging
+                  and evals-submodule fixes. PRs #1769, #1874, #1897, #1806, #1779.'
+                status: done
+                sequence: 1
+                docs_ref: https://github.com/obra/superpowers/pull/1897
+              plugin-manifests:
+                id: plugin-manifests
+                title: Plugin & marketplace manifests
+                description: "Marketplace/plugin manifest fixes incl. missing 'skills'
+                  field so Claude Code discovers skills. PRs #1877, #610; issue #1479."
+                status: done
+                sequence: 2
+                docs_ref: https://github.com/obra/superpowers/issues/1479
+            summary: "The 6.x release train and plugin-packaging fixes: version cuts,
+              removing an evals submodule that broke plugin installs, Codex portal
+              packaging and manifest category fixes, marketplace install docs, and
+              a reported missing 'skills' field in plugin.json."
+            cluster: 'Open issue #1479 (plugin.json missing skills field; fix PRs
+              #1568/#1819 CLOSED). PRs all MERGED: #1769 (v6.0.0), #1806 (v6.0.3),
+              #1779 (v6.0.2), #1874 (v6.1.0), #1897 (v6.1.1) all obra; #1877 (arittr);
+              #610 (marketplace docs).'
+            signal: 'DONE — shipped in the v6.0.0→v6.1.1 release train (obra-merged).
+              Maintainer-owned release cadence; not a contribution target. #1479 skills-field
+              issue still open but fix attempts closed (deliberate reliance on auto-discovery)
+              — low-value residue.'
+            context_captured: '2026-07-10'
+          internationalization:
+            id: internationalization
+            title: Internationalization
+            description: README/doc translations for the global user base.
+            status: in_progress
+            sequence: 2
+            features:
+              readme-translations:
+                id: readme-translations
+                title: README translations
+                description: 'Traditional Chinese, Simplified Chinese, and German
+                  README translations. PRs #1815, #1757, #845, #713; issues #1585,
+                  #1050.'
+                status: in_progress
+                sequence: 1
+                docs_ref: https://github.com/obra/superpowers/pull/1815
+            summary: Community wants localized READMEs (Simplified/Traditional
+              Chinese, German). Repo is English-only with no localization
+              convention established, so contributors keep opening translation
+              PRs and asking maintainers to confirm conventions first.
+            cluster: 'Issues #1585 (German, asks conventions first), #1050 (Traditional
+              Chinese offer). PRs OPEN & overlapping: #1757 & #1815 (both 2023Anita,
+              Traditional Chinese — self-duplicate), #845 (zh-CN Simplified), #713
+              (chinese README.zh). Multiple redundant translation PRs, none merged.'
+            signal: 'CONTESTED/STALLED — 4+ open translation PRs (#1757, #1815, #845,
+              #713) incl. a self-duplicate, none merged, plus 2 request issues. No
+              maintainer PR, but the pileup signals no localization convention/appetite
+              yet. Low severity; avoid adding another translation.'
+            context_captured: '2026-07-10'
+          contribution-governance:
+            id: contribution-governance
+            title: Contribution governance
+            description: Rules and PR-hygiene that keep the contribution
+              firehose (94% rejection) reviewable.
+            status: in_progress
+            sequence: 3
+            features:
+              authoring-disclosure:
+                id: authoring-disclosure
+                title: Authoring-environment disclosure
+                description: 'Require contributors to disclose authoring environment;
+                  document dev-branch target; require session transcript for new-harness
+                  PRs. PRs #1651, #1296.'
+                status: done
+                sequence: 1
+                docs_ref: https://github.com/obra/superpowers/pull/1651
+              repo-pr-templates:
+                id: repo-pr-templates
+                title: Repo PR templates + issue-closing
+                description: 'finishing-a-development-branch should use repository
+                  PR templates and offer GitHub issue-closing keywords. PRs #1842,
+                  #657; issues #1834, #600.'
+                status: in_progress
+                sequence: 2
+                docs_ref: https://github.com/obra/superpowers/pull/1842
+            summary: 'Hardening contribution process: disclose authoring environment,
+              target dev branch, require session transcripts for new-harness PRs (all
+              landed); plus open asks that finishing-a-development-branch should check
+              repo PR templates and prompt for issue-closing keywords so merges auto-close
+              issues.'
+            cluster: 'Open issues #1834 (use repo PR templates), #600 (issue-closing
+              keywords). Merged #1651 (obra, disclose-env + dev-branch), #1296 (obra,
+              require new-harness transcript). Open PRs #1842 (citizen204, PR-template
+              check for #1834), #657 (mvanhorn, issue-closing keywords for #600).'
+            signal: "PARTIALLY DONE — governance policy shipped via obra's merged
+              #1651/#1296. Remaining skill-behaviour asks (#1834/#600) each already
+              have an open community PR (#1842, #657); obra authors neither. CONTESTED-lite;
+              low severity, small scope."
+            context_captured: '2026-07-10'

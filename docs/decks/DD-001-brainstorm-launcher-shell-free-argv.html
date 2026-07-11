@@ -1,0 +1,1050 @@
+<!-- gitban-deck
+{
+  "source": "docs/designs/DD-001-brainstorm-launcher-shell-free-argv.md",
+  "source_commit": "uncommitted",
+  "source_dirty": false,
+  "generated": "2026-07-11",
+  "mode": "standalone",
+  "review": {
+    "verdict": "APPROVED",
+    "date": "2026-07-11",
+    "rounds": 1,
+    "strongest_finding": "the ~16-line parseLauncherCommand tokenizer's actual logic never appears in the deck (contract fully conveyed; defensible editorial choice for a leadership audience)"
+  },
+  "steering": []
+}
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DD-001 — Retire the operator-launcher shell shape with a quote-aware argv tokenizer</title>
+  <style>
+html { color-scheme: light; }
+/* ==========================================================================
+   deck.css — the one deck stylesheet (gitban lifecycle artifact decks)
+
+   Embedded verbatim in every generated deck; never edited per-deck. All
+   chrome lives here — the writer composes semantic HTML within the grammar
+   documented in references/visual-system.md and authors no CSS of its own.
+   Light-first, print-safe, executive-document aesthetic. Zero external
+   references: system fonts only, no imports, no images.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. Tokens — the complete palette and scale. Every color in a deck
+      (including inline-SVG evidence, via the fill- and stroke- utility
+      classes in §9) resolves from these custom properties; nothing else is
+      sanctioned. NOTE: never write a literal star-slash sequence inside a
+      comment — it terminates the comment early and the stray prose becomes
+      an invalid selector that eats the entire next rule block.
+   -------------------------------------------------------------------------- */
+:root {
+  /* Surfaces */
+  --paper: #faf9f6;          /* page + slide ground: warm near-white */
+  --surface: #ffffff;        /* raised panels (vs-options, code) */
+  --surface-tint: #eef2f7;   /* accent-tinted panels (ask slide, callout) */
+
+  /* Ink */
+  --ink: #1f242e;            /* primary text */
+  --ink-secondary: #4a5160;  /* supporting text, captions */
+  --ink-muted: #878d9a;      /* footers, colophon, labels */
+  --ink-inverse: #ffffff;    /* SVG label text placed ON a dark fill (see §8/§9) */
+
+  /* Accent — defaults to PRD blue; the deck root's type modifier
+     (.deck--prd/.deck--adr/.deck--design, §1b) remaps this per artifact type */
+  --accent: #14508c;
+  --accent-ink: #103e6d;     /* accent used AS text on light ground */
+
+  /* Rules & borders */
+  --rule: #e0e3e9;
+  --rule-strong: #b7bdc9;
+
+  /* Semantic */
+  --good: #1e7d43;
+  --warn: #9a6a00;
+  --bad: #b3372e;
+
+  /* Data palette (inline-SVG evidence) */
+  --data-1: #14508c;
+  --data-2: #1e7d43;
+  --data-3: #9a6a00;
+  --data-4: #7a4a9e;
+  --data-5: #b3372e;
+  --data-6: #3d7a8a;
+
+  /* Type */
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+               "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "Cascadia Code", Consolas,
+               "Liberation Mono", Menlo, monospace;
+  --text-s: 0.85rem;
+  --text-0: 1.125rem;                               /* body */
+  --text-1: 1.4rem;
+  --text-2: clamp(1.5rem, 1.1rem + 1.6vw, 2.1rem);  /* slide headline */
+  --text-3: clamp(2rem, 1.4rem + 2.6vw, 3rem);      /* title headline */
+  --text-stat: clamp(2.2rem, 1.6rem + 2.8vw, 3.4rem);
+
+  /* Layout */
+  --slide-max: 62rem;        /* content column ceiling */
+  --pad-x: clamp(1.25rem, 5vw, 4rem);
+  --pad-y: clamp(2.5rem, 7vh, 5rem);
+  --gap: 1.5rem;
+  --radius: 6px;
+}
+
+/* --------------------------------------------------------------------------
+   1b. Per-artifact-type accent theming.
+       The deck root <main> carries exactly ONE type modifier
+       (deck--prd | deck--adr | deck--design) that remaps the accent so the
+       WHOLE deck — title badge, kicker rule, links, list markers, the ask
+       slide, callouts, .fill-accent SVG — reads in its artifact type's color:
+       PRD blue, ADR/NOM amber, design-doc teal. Each type's --accent-ink
+       (used AS text) clears WCAG AA (>=4.5:1) on paper; the brighter --accent
+       is used only for rules/fills/markers (>=3:1). The data palette
+       (--data-*) is deliberately NOT retinted — it stays stable across types
+       so a chart means the same thing in any deck.
+   -------------------------------------------------------------------------- */
+.deck--prd    { --accent: #14508c; --accent-ink: #103e6d; }
+.deck--adr    { --accent: #b5730a; --accent-ink: #7a4900; }
+.deck--design { --accent: #2f7d90; --accent-ink: #1b5563; }
+
+/* --------------------------------------------------------------------------
+   2. Base
+   -------------------------------------------------------------------------- */
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  /* The document scroller IS the deck surface: gentle snap at slide starts,
+     never mandatory — a tall slide must scroll freely (design D4). */
+  scroll-snap-type: y proximity;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html { scroll-behavior: smooth; }
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: var(--text-0);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection { background: var(--surface-tint); color: var(--accent-ink); }
+
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+a { color: var(--accent-ink); text-decoration-thickness: 1px; text-underline-offset: 0.15em; }
+
+strong { color: var(--ink); font-weight: 650; }
+
+/* --------------------------------------------------------------------------
+   3. The slide frame
+      Viewport-height minimum, NO fixed height: content taller than the
+      viewport grows the slide and scrolls freely. Flex column centers
+      content vertically and pins the footer to the bottom edge.
+   -------------------------------------------------------------------------- */
+.deck { display: block; }
+
+.slide {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 100vh;
+  min-height: 100svh;
+  padding: var(--pad-y) var(--pad-x);
+  scroll-snap-align: start;
+}
+
+.slide + .slide { border-top: 1px solid var(--rule); }
+
+/* Centered content column */
+.slide > * {
+  width: 100%;
+  max-width: var(--slide-max);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* --------------------------------------------------------------------------
+   4. Text roles
+   -------------------------------------------------------------------------- */
+.kicker {
+  margin: 0 auto 0.75rem;   /* keep the .slide > * horizontal centering — a
+                               0-margin shorthand here would reset it and push
+                               the kicker off the content column on wide viewports */
+  font-size: var(--text-s);
+  font-weight: 650;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent-ink);
+}
+
+.headline {
+  margin: 0 auto;           /* same: preserve the centered content column */
+  font-size: var(--text-2);
+  font-weight: 700;
+  line-height: 1.18;
+  letter-spacing: -0.015em;
+  color: var(--ink);
+  text-wrap: balance;
+}
+
+.evidence { margin-top: var(--gap); color: var(--ink); }
+.evidence > :first-child { margin-top: 0; }
+.evidence > :last-child { margin-bottom: 0; }
+
+.slide-foot {
+  margin-top: auto;          /* pin to the slide's bottom edge */
+  padding-top: var(--gap);
+  font-size: var(--text-s);
+  color: var(--ink-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* --------------------------------------------------------------------------
+   5. Slide variants
+   -------------------------------------------------------------------------- */
+.slide--title .headline { font-size: var(--text-3); letter-spacing: -0.02em; }
+
+/* The artifact-type badge — the one consistent, prominent signal of WHICH kind
+   of source this deck presents (Product Requirements / Architecture Decision /
+   Design Document). A pill in the type's accent, always the first element on
+   the title slide. Reads instantly and prints in color. */
+.slide--title .artifact-type {
+  display: inline-block;
+  margin-bottom: 1.1rem;
+  /* pin to the centered content column's left edge, like the kicker */
+  margin-left: max(calc((100% - var(--slide-max)) / 2), 0rem);
+  padding: 0.3rem 0.85rem;
+  border: 1.5px solid var(--accent);
+  border-radius: 999px;
+  font-size: var(--text-s);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--accent-ink);
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.slide--title .kicker {
+  border-top: 4px solid var(--accent);
+  padding-top: 1rem;
+  width: fit-content; /* the accent bar hugs the kicker text */
+  /* fit-content + auto margins would center it; pin its left edge to the
+     centered content column instead (offset = half the space the column
+     leaves over, never negative) */
+  margin-left: max(calc((100% - var(--slide-max)) / 2), 0rem);
+}
+
+.slide--title .evidence { color: var(--ink-secondary); font-size: var(--text-1); }
+
+.slide--ask {
+  background: var(--surface-tint);
+  border-left: 6px solid var(--accent);
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.slide--ask .headline { color: var(--accent-ink); }
+
+.slide--colophon { font-size: var(--text-s); color: var(--ink-secondary); }
+.slide--colophon .headline { font-size: var(--text-1); color: var(--ink-secondary); }
+.slide--colophon .evidence { color: var(--ink-secondary); }
+.slide--colophon a { color: var(--ink-secondary); }
+
+/* --------------------------------------------------------------------------
+   6. Evidence content — standard HTML, no classes needed
+   -------------------------------------------------------------------------- */
+.evidence p, .evidence ul, .evidence ol { margin: 0 0 0.9em; }
+
+.evidence ul, .evidence ol { padding-left: 1.4em; }
+.evidence li { margin-bottom: 0.35em; }
+.evidence li::marker { color: var(--accent); }
+
+.evidence table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0 0 1em;
+  font-size: 0.95em;
+}
+.evidence th {
+  text-align: left;
+  font-weight: 650;
+  border-bottom: 2px solid var(--rule-strong);
+  padding: 0.45em 0.9em 0.45em 0;
+}
+.evidence td {
+  border-bottom: 1px solid var(--rule);
+  padding: 0.45em 0.9em 0.45em 0;
+  vertical-align: top;
+}
+
+.evidence blockquote {
+  margin: 0 0 1em;
+  padding: 0.1em 0 0.1em 1.1em;
+  border-left: 3px solid var(--rule-strong);
+  color: var(--ink-secondary);
+}
+
+.evidence figure { margin: 0 0 1em; }
+.evidence figcaption {
+  margin-top: 0.5em;
+  font-size: var(--text-s);
+  color: var(--ink-muted);
+}
+
+.evidence code {
+  font-family: var(--font-mono);
+  font-size: 0.88em;
+  background: var(--surface-tint);
+  padding: 0.1em 0.35em;
+  border-radius: 3px;
+}
+.evidence pre {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  padding: 1em 1.25em;
+  overflow-x: auto;
+  margin: 0 0 1em;
+}
+.evidence pre code { background: none; padding: 0; font-size: 0.85em; }
+
+.evidence hr {
+  border: 0;
+  border-top: 1px solid var(--rule);
+  margin: 1.5em 0;
+}
+
+/* --------------------------------------------------------------------------
+   7. Evidence utilities
+   -------------------------------------------------------------------------- */
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--gap) calc(var(--gap) * 1.5);
+  margin: 0 0 1em;
+}
+
+.stat { display: flex; flex-direction: column; gap: 0.25rem; }
+.stat-value {
+  font-size: var(--text-stat);
+  font-weight: 750;
+  line-height: 1;
+  color: var(--accent-ink);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+.stat-label { font-size: var(--text-s); color: var(--ink-muted); }
+
+.callout {
+  background: var(--surface-tint);
+  border-left: 4px solid var(--accent);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 0.9rem 1.25rem;
+  margin: 0 0 1em;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.callout > :first-child { margin-top: 0; }
+.callout > :last-child { margin-bottom: 0; }
+
+.vs {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: var(--gap);
+  margin: 0 0 1em;
+}
+.vs-option {
+  background: var(--surface);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+}
+.vs-option > h3 {
+  margin: 0 0 0.5rem;
+  font-size: var(--text-s);
+  font-weight: 650;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-secondary);
+}
+.vs-option > :last-child { margin-bottom: 0; }
+.vs-option--chosen {
+  border: 2px solid var(--accent);
+  background: var(--surface);
+}
+.vs-option--chosen > h3 { color: var(--accent-ink); }
+
+/* Design-doc grammar: build-sequence / phases — the sequencing movement as an
+   ordered, numbered vertical timeline; the build order legible at a skim. Each
+   step is an <li> (an <ol class="sequence"> gives the ordering for free); the
+   number node and connecting rail are drawn from the counter, so reordering
+   steps renumbers them automatically. */
+.sequence {
+  list-style: none;
+  margin: 0 0 1em;
+  padding: 0;
+  counter-reset: seq;
+}
+.sequence-step {
+  position: relative;
+  counter-increment: seq;
+  padding: 0 0 1.15rem 3rem;
+}
+.sequence-step:last-child { padding-bottom: 0; }
+.sequence-step::before {          /* the numbered node */
+  content: counter(seq);
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1.9rem;
+  height: 1.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--surface);
+  font-size: var(--text-s);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.sequence-step::after {           /* the connecting rail to the next node */
+  content: "";
+  position: absolute;
+  left: 0.9rem;
+  top: 1.9rem;
+  bottom: 0;
+  width: 2px;
+  background: var(--rule-strong);
+}
+.sequence-step:last-child::after { display: none; }
+.sequence-step > h3 {
+  margin: 0 0 0.35rem;
+  font-size: var(--text-1);
+  font-weight: 650;
+  line-height: 1.25;
+  color: var(--ink);
+}
+.sequence-step > :last-child { margin-bottom: 0; }
+
+/* Design-doc grammar: architecture / component map — peer building blocks and
+   their roles as a labeled block diagram. Distinct from .vs (which compares
+   alternatives and marks one chosen): these are co-existing parts of the one
+   design. Genuine wiring/topology (arrows between parts) still uses the
+   inline-SVG valve; this is the labeled-parts layout. */
+.components {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  gap: var(--gap);
+  margin: 0 0 1em;
+}
+.component {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-top: 3px solid var(--accent);
+  border-radius: var(--radius);
+  padding: 0.9rem 1.1rem;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.component > h3 {
+  margin: 0 0 0.4rem;
+  font-size: var(--text-0);
+  font-weight: 650;
+  color: var(--ink);
+}
+.component > :last-child { margin-bottom: 0; }
+
+/* Design-doc grammar: right-sizing comparison — this design against a simpler
+   and a bigger option on one scope axis, making "every element earns its keep"
+   visual. The flanking options (roads not taken) recede in dashed/muted tone;
+   the chosen middle is solid and accented. Order the three columns
+   simpler → chosen → bigger so the axis reads left-to-right. */
+.rightsize {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--gap);
+  margin: 0 0 1em;
+  align-items: stretch;
+}
+.rightsize-option {
+  background: var(--paper);
+  border: 1px dashed var(--rule-strong);
+  border-radius: var(--radius);
+  padding: 0.9rem 1.1rem;
+  color: var(--ink-secondary);
+}
+.rightsize-option > h3 {
+  margin: 0 0 0.4rem;
+  font-size: var(--text-s);
+  font-weight: 650;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+}
+.rightsize-option--chosen {
+  background: var(--surface);
+  border: 2px solid var(--accent);
+  color: var(--ink);
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.rightsize-option--chosen > h3 { color: var(--accent-ink); }
+.rightsize-option > :last-child { margin-bottom: 0; }
+
+/* --------------------------------------------------------------------------
+   8. Inline-SVG evidence
+   -------------------------------------------------------------------------- */
+.evidence svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 0 auto 1em;
+}
+.evidence svg text {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  fill: var(--ink-secondary);
+}
+
+/* --------------------------------------------------------------------------
+   9. SVG color utilities — the token-palette escape valve.
+      CSS var() does not resolve inside SVG presentation attributes, so
+      colors are applied via these classes; raw color literals in a deck
+      are a chrome-drift finding.
+   -------------------------------------------------------------------------- */
+.fill-data-1 { fill: var(--data-1); }  .stroke-data-1 { stroke: var(--data-1); }
+.fill-data-2 { fill: var(--data-2); }  .stroke-data-2 { stroke: var(--data-2); }
+.fill-data-3 { fill: var(--data-3); }  .stroke-data-3 { stroke: var(--data-3); }
+.fill-data-4 { fill: var(--data-4); }  .stroke-data-4 { stroke: var(--data-4); }
+.fill-data-5 { fill: var(--data-5); }  .stroke-data-5 { stroke: var(--data-5); }
+.fill-data-6 { fill: var(--data-6); }  .stroke-data-6 { stroke: var(--data-6); }
+.fill-good   { fill: var(--good); }    .stroke-good   { stroke: var(--good); }
+.fill-warn   { fill: var(--warn); }    .stroke-warn   { stroke: var(--warn); }
+.fill-bad    { fill: var(--bad); }     .stroke-bad    { stroke: var(--bad); }
+.fill-accent { fill: var(--accent); }  .stroke-accent { stroke: var(--accent); }
+.fill-ink    { fill: var(--ink); }     .stroke-ink    { stroke: var(--ink); }
+.fill-muted  { fill: var(--ink-muted); } .stroke-muted { stroke: var(--ink-muted); }
+.stroke-rule { stroke: var(--rule-strong); }
+.fill-surface { fill: var(--surface); }
+.fill-surface-tint { fill: var(--surface-tint); }  /* light labeled-box ground: makes the
+                                                       light band SVG-reachable so a rule-
+                                                       following author gets a filled rect,
+                                                       not the SVG default (black). */
+.fill-inverse { fill: var(--ink-inverse); }  /* light label ink for text ON a dark fill */
+.fill-none   { fill: none; }
+
+/* --------------------------------------------------------------------------
+   10. Position indicator (created by deck-nav.js; absent without JS)
+   -------------------------------------------------------------------------- */
+.deck-pos {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 10;
+  padding: 0.25rem 0.7rem;
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  box-shadow: 0 1px 3px rgba(31, 36, 46, 0.08);
+  font-size: var(--text-s);
+  color: var(--ink-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* --------------------------------------------------------------------------
+   11. Narrow viewports (phone reading is a first-class path)
+   -------------------------------------------------------------------------- */
+@media (max-width: 640px) {
+  .grid-2 { grid-template-columns: 1fr; }
+  /* The right-size spectrum stacks; simpler → chosen → bigger reads top-to-bottom
+     on a phone. .components auto-fits and .sequence is already vertical. */
+  .rightsize { grid-template-columns: 1fr; }
+  /* Wide tables scroll within their slide instead of overflowing the page —
+     a ≥4-column table's min-content width beats a phone viewport (observed
+     at 375px in Chromium and Firefox); same containment pattern as
+     `.evidence pre`. */
+  .evidence table { font-size: 0.85em; display: block; overflow-x: auto; max-width: 100%; }
+  .evidence th, .evidence td { padding-right: 0.5em; }
+}
+
+/* --------------------------------------------------------------------------
+   12. Print — one slide per page, nothing clipped, no screen chrome
+   -------------------------------------------------------------------------- */
+@media print {
+  html { scroll-snap-type: none; scroll-behavior: auto; }
+  body { background: #fff; }
+
+  .slide {
+    min-height: 0;           /* natural height on paper; no vh games */
+    padding: 0.35in 0.25in;
+    break-after: page;
+    page-break-after: always; /* legacy engines */
+    border-top: none;
+  }
+  .slide:last-of-type { break-after: auto; page-break-after: auto; }
+
+  .deck-pos { display: none; }
+
+  .callout, .vs-option, .stat, .evidence figure { break-inside: avoid; }
+  .component, .rightsize-option, .sequence-step { break-inside: avoid; }
+  .evidence tr { break-inside: avoid; }
+
+  .slide--ask { border-left-width: 10px; } /* survives background stripping */
+
+  a { color: inherit; }
+}
+  </style>
+</head>
+<body>
+  <main class="deck deck--design">
+
+    <!-- 1 · Title -->
+    <section class="slide slide--title" id="s1">
+      <p class="artifact-type">Design Document</p>
+      <p class="kicker">DD-001 · brainstorming companion · Draft</p>
+      <h1 class="headline">Retire the browser-launcher's shell shape by tokenizing the operator command into argv and launching with no shell</h1>
+      <div class="evidence">
+        <p>A security audit flagged a shell-injection <em>shape</em> in the brainstorming companion's auto-open launcher. This design converges on the smallest change that removes it: a ~16-line in-tree quote-aware tokenizer feeding <code>cp.execFile</code>, making the flagged branch structurally identical to the shell-free launcher two lines below it.</p>
+      </div>
+      <footer class="slide-foot">DD-001 · uncommitted · 1/16 · made with gitban MCP</footer>
+    </section>
+
+    <!-- 2 · Problem & forces -->
+    <section class="slide" id="s2">
+      <p class="kicker">The problem</p>
+      <h2 class="headline">One override branch hands an operator string to a shell — the classic injection shape, and an auditor blocked adoption on it</h2>
+      <div class="evidence">
+        <p>The companion server auto-opens a browser the first time a screen is ready. When an operator sets <code>BRAINSTORM_OPEN_CMD</code>, that branch concatenates the operator's value with the companion URL and hands it to a shell via <code>cp.exec</code>.</p>
+        <p><strong>What "shell-injection shape" means, plainly:</strong> because a real shell parses the string, characters like <code>;</code>, <code>|</code>, or <code>$(…)</code> in that string are read as <em>commands</em>, not as text. Anything that can influence the value can run its own program.</p>
+        <div class="callout">
+          <p>An org's security audit — upstream <strong>obra/superpowers issue #1957</strong> — classified this shape <strong>High / blocking</strong> and gated the org's adoption of the plugin on it being gone or made explicitly trusted.</p>
+        </div>
+        <p>The sharp irony: <strong>two lines below the finding, the built-in platform-launcher branch already does the shell-free thing</strong> — <code>cp.execFile(bin, args)</code> with the URL as a discrete argument. The fix is to make the flagged branch match the one right next to it.</p>
+      </div>
+      <footer class="slide-foot">DD-001 · uncommitted · 2/16 · made with gitban MCP</footer>
+    </section>
+
+    <!-- 3 · Current state — the sink -->
+    <section class="slide" id="s3">
+      <p class="kicker">Current state · the sink</p>
+      <h2 class="headline">Four guards protect the launch; then one branch goes through a shell and its neighbor does not</h2>
+      <div class="evidence">
+        <p>Grounded in <code>skills/brainstorming/scripts/server.cjs</code>, <code>maybeOpenBrowser()</code>. The four pre-launch guards are sound and stay untouched; the asymmetry sits only in the last two branches:</p>
+        <pre><code>if (!process.env.BRAINSTORM_OPEN) return;                 // opt-in guard
+if (HOST !== '127.0.0.1' &amp;&amp; HOST !== 'localhost') return;  // loopback-only guard
+if (clients.size &gt; 0) return;                             // skip-if-connected guard
+const url = companionUrl();                               // carries the session key
+
+if (process.env.BRAINSTORM_OPEN_CMD) {
+  cp.exec(process.env.BRAINSTORM_OPEN_CMD + ' ' + JSON.stringify(url), () =&gt; {});
+  return;                        // &lt;-- the finding: cp.exec invokes a shell
+}
+const launcher = browserLauncherForPlatform(url);
+cp.execFile(launcher.bin, launcher.args, () =&gt; {});   // no shell — the pattern to match</code></pre>
+        <p><code>browserOpened = true</code> is set at the top, so the once-only guard holds regardless of which branch runs. <code>module.exports</code> already exports internal functions for testing, so adding one more export is idiomatic, not a new pattern.</p>
+      </div>
+      <footer class="slide-foot">DD-001 · uncommitted · 3/16 · made with gitban MCP</footer>
+    </section>
+
+    <!-- 4 · What "solved" means -->
+    <section class="slide" id="s4">
+      <p class="kicker">Definition of done</p>
+      <h2 class="headline">"Solved" is an outcome — an equivalent audit no longer flags the branch — with five invariants held intact</h2>
+      <div class="evidence">
+        <p>From the PRD, "solved" is stated as an outcome, not a mechanism: <strong>an equivalent audit no longer classifies the override path as High/blocking</strong>, while all five of these hold:</p>
+        <ul>
+          <li>The override still launches a <strong>realistic launcher</strong> — a binary + flags + quoted/spaced path args, the shape the existing tests exercise.</li>
+          <li>The <strong>four pre-launch guards are untouched</strong>.</li>
+          <li>The <strong>built-in launcher path is behaviorally unchanged</strong>.</li>
+          <li>The existing <strong><code>tests/brainstorm-server</code> suite stays green</strong>.</li>
+          <li><strong>No new dependency</strong> is added.</li>
+        </ul>
+        <p>Plus one addition: <code>BRAINSTORM_OPEN_CMD</code> gains the operator-facing documentation it entirely lacks today. Any candidate is judged against this bar — not against "is the code smaller."</p>
+      </div>
+      <footer class="slide-foot">DD-001 · uncommitted · 4/16 · made with gitban MCP</footer>
+    </section>
+
+    <!-- 5 · The approach -->
+    <section class="slide" id="s5">
+      <p class="kicker">The approach · candidate (a)</p>
+      <h2 class="headline">Parse the override into argv with a small quote-aware tokenizer, then launch via execFile — no shell anywhere</h2>
+      <div class="evidence">
+        <p>Chosen: <strong>candidate (a) — a hand-rolled quote-aware tokenizer feeding <code>cp.execFile</code></strong>, making the override branch structurally identical to the built-in branch the audit already accepts. The key tradeoff is visible and deliberate: <strong>full shell power is traded for a shell that is simply not there.</strong></p>
+        <div class="grid-2">
+          <div class="stat"><span class="stat-value">~16</span><span class="stat-label">lines of tokenizer (standard-library JavaScript, no dependency)</span></div>
+          <div class="stat"><span class="stat-value">~8</span><span class="stat-label">lines changed at the call site</span></div>
+        </div>
+        <p>The whole change — tokenizer + call site + one export — is <strong>~24 lines in one file</strong>. No new modules, no new call paths, no change to how <code>maybeOpenBrowser</code> is reached. The tokenizer earns its keep precisely because honoring quotes is what preserves realistic launcher use (quoted paths with spaces, flags) — the exact capability a naive split would lose.</p>
+      </div>
+      <footer class="slide-foot">DD-001 · uncommitted · 5/16 · made with gitban MCP</footer>
+    </section>
+
+    <!-- 6 · The exact edit -->
+    <section class="slide" id="s6">
+      <p class="kicker">The exact edit</p>
+      <h2 class="headline">The override branch swaps cp.exec(string) for parseLauncherCommand + execFile — the URL becomes a discrete argv element</h2>
+      <div class="evidence">
+        <div class="grid-2">
+          <div>
+            <p><strong>Before</strong> — the flagged sink:</p>
+            <pre><code>cp.exec(
+  process.env.BRAINSTORM_OPEN_CMD
+    + ' ' + JSON.stringify(url),
+  () =&gt; {}
+);
+return;</code></pre>
+          </div>
+          <div>
+            <p><strong>After</strong> — argv + execFile, no shell:</p>
+            <pre><code>const argv = parseLauncherCommand(
+  process.env.BRAINSTORM_OPEN_CMD);
+if (argv.length &amp;&amp; argv[0]) {
+  cp.execFile(argv[0],
+    [...argv.slice(1), url], () =&gt; {});
+  return;
+}
+// empty / quoted-empty / whitespace-only:
+// fall through to the built-in launcher</code></pre>
+          </div>
+        </div>
+        <p>The <code>argv[0]</code> conjunct in the guard is deliberate: a quoted-empty value (<code>""</code>) tokenizes to <code>['']</code> — length 1, empty binary — and the guard prevents an <code>execFile('', …)</code>. The <code>return</code> moves <em>inside</em> the guard so a blank or quoted-blank override falls through to the platform default rather than silently doing nothing.</p>
+      </div>
+      <footer class="slide-foot">DD-001 · uncommitted · 6/16 · made with gitban MCP</footer>
+    </section>
+
+    <!-- 7 · Four candidates weighed -->
+    <section class="slide" id="s7">
+      <p class="kicker">Alternatives weighed</p>
+      <h2 class="headline">The PRD handed four candidates; three fail the "solved" bar, and the fourth reads as consistent with the code beside it</h2>
+      <div class="evidence">
+        <div class="vs">
+          <div class="vs-option">
+            <h3>(b) Naive whitespace split + execFile</h3>
+            <p>Smallest code, removes the shell — but <strong>breaks the existing lifecycle test</strong> (retains quote characters) and splits quoted spaced paths. Rejected.</p>
+          </div>
+          <div class="vs-option">
+            <h3>(c) Documentation-only trust model</h3>
+            <p>Zero code change. But the flagged <code>cp.exec</code> sink <strong>remains</strong>, so a structural scan re-fires regardless of prose. Its doc deliverable is kept and folded in. Rejected as the fix.</p>
+          </div>
+          <div class="vs-option">
+            <h3>(d) Keep shell string + add an array env var</h3>
+            <p>Preserves shell power — but the sink <strong>stays on the default variable</strong>, and it adds a second config surface for a capability the PRD declines to commit to. Rejected.</p>
+          </div>
+          <div class="vs-option vs-option--chosen">
+            <h3>(a) Quote-aware argv tokenizer + execFile</h3>
+            <p>Removes the sink entirely, preserves realistic launcher use, keeps the lifecycle test green, and reads as consistent with the <code>execFile</code> pattern two lines below. <strong>Chosen.</strong></p>
+          </div>
+        </div>
+      </div>
+      <footer class="slide-foot">DD-001 · uncommitted · 7/16 · made with gitban MCP</footer>
+    </section>
+
+    <!-- 8 · Why the two shortcuts fail -->
+    <section class="slide" id="s8">
+      <p class="kicker">Why the tempting shortcuts fail</p>
+      <h2 class="headline">The naive split breaks the test's JSON-quoted paths; docs-only never removes the structural sink</h2>
+      <div class="evidence">
+        <p><strong>Why (b) fails — concretely.</strong> The existing lifecycle test's <code>openCaptureCommand</code> produces a value with literal double-quotes: <code>node "&lt;abs&gt;" "&lt;abs&gt;"</code>. Splitting on whitespace yields:</p>
+        <pre><code>['node', '"&lt;abs&gt;"', '"&lt;abs&gt;"']   // quote characters RETAINED</code></pre>
+        <p>So <code>node</code> is asked to open a file <em>literally named</em> <code>"…"</code>, the capture never fires, and the test goes red. It also fails requirement 4 — a quoted spaced path splits into two arguments. The quote-aware tokenizer instead strips the quotes: <code>['node', '&lt;abs&gt;', '&lt;abs&gt;']</code> — exactly what the test needs.</p>
+        <div class="callout">
+          <p><strong>Why (c) fails.</strong> An auditor <em>could</em> accept the shape as documented — but "solved" must clear the audit's <em>class of check</em>: a static/skill-based scan that flags the <em>shape</em>. Prose does not remove the <code>cp.exec(string)</code> sink; the structural scan re-fires regardless. It bets the whole outcome on one reviewer overriding their own tooling.</p>
+        </div>
+      </div>
+      <footer class="slide-foot">DD-001 · uncommitted · 8/16 · made with gitban MCP</footer>
+    </section>
+
+    <!-- 9 · The parity insight -->
+    <section class="slide" id="s9">
+      <p class="kicker">The key insight · parity, not narrowing</p>
+      <h2 class="headline">Honoring quotes is parity with the old shell — no quoted launcher form regresses; only shell-only features and tilde/backslash drop</h2>
+      <div class="evidence">
+        <p>The subtle point that must not be mistaken for a regression: under the <em>old</em> <code>cp.exec</code> path, the shell already word-split the value, so <strong>a spaced binary path already required the operator to embed quotes in the value</strong> (<code>'"/Applications/My Browser.app/…"'</code>). The tokenizer reproduces exactly this — it splits on whitespace <em>outside</em> quotes and keeps quoted spans intact.</p>
+        <div class="grid-2">
+          <div class="vs-option vs-option--chosen">
+            <h3>Preserved — every quoted launcher form</h3>
+            <p>Binary + flags + <strong>quoted</strong> spaced-path arguments all pass through identically. The tested lifecycle shape and requirement 4's <code>&lt;binary&gt; "&lt;path with a space&gt;"</code> both hold.</p>
+          </div>
+          <div class="vs-option">
+            <h3>Dropped, deliberately — two shell-quoting forms</h3>
+            <p><strong>Backslash-escaped spaces</strong>: <code>/opt/My\ Browser/bin</code> tokenizes to two args (backslash-escaping not honored). <strong>Tilde paths</strong>: <code>~/bin/browser</code> passes literally and <code>execFile</code> ENOENTs. Workaround — quote the absolute path — is in the docs.</p>
+          </div>
+        </div>
+        <p>This is why (a) is a <strong>faithful, near-parity replacement</strong> — every quoted launcher form is preserved — rather than a silent narrowing.</p>
+      </div>
+      <footer class="slide-foot">DD-001 · uncommitted · 9/16 · made with gitban MCP</footer>
+    </section>
+
+    <!-- 10 · Dropping shell features IS the security property -->
+    <section class="slide" id="s10">
+      <p class="kicker">The security property</p>
+      <h2 class="headline">Dropping shell features is not a cost of the fix — it is the fix: an injected metacharacter becomes an inert string</h2>
+      <div class="evidence">
+        <p><code>execFile</code> spawns the binary directly, so pipes, redirection, command substitution, <code>&amp;&amp;</code>/<code>||</code>/<code>;</code>, globbing, <code>$VAR</code>, <code>~</code>, and backslash-escaping are <strong>not honored</strong> — their characters survive as inert literal argv tokens. <strong>That inertness is the security property itself.</strong></p>
+        <figure>
+          <svg viewBox="0 0 700 250" role="img" aria-label="Old path: operator command plus URL go to cp.exec, a shell interprets the semicolon and runs an injected command. New path: the same input is tokenized to argv and execFile spawns only the named binary; the semicolon is an inert string.">
+            <text class="fill-muted" x="8" y="34" font-size="12">OLD · shell</text>
+            <text class="fill-muted" x="8" y="164" font-size="12">NEW · execFile</text>
+
+            <!-- OLD row -->
+            <rect class="fill-surface stroke-rule" x="80"  y="20" width="150" height="48" rx="6"></rect>
+            <text x="96" y="41">OPEN_CMD ; touch</text>
+            <text x="96" y="58">pwned&nbsp;&nbsp;+&nbsp;&nbsp;URL</text>
+
+            <rect class="fill-bad" x="300" y="20" width="150" height="48" rx="6"></rect>
+            <text class="fill-inverse" x="322" y="41">cp.exec(string)</text>
+            <text class="fill-inverse" x="342" y="58">→ /bin/sh</text>
+
+            <rect class="fill-bad" x="520" y="20" width="170" height="48" rx="6"></rect>
+            <text class="fill-inverse" x="536" y="41">; runs as a command</text>
+            <text class="fill-inverse" x="536" y="58">→ touch pwned fires</text>
+
+            <line class="stroke-ink" x1="230" y1="44" x2="296" y2="44" stroke-width="2"></line>
+            <path class="fill-ink" d="M296,44 l-9,-4 v8 z"></path>
+            <line class="stroke-ink" x1="450" y1="44" x2="516" y2="44" stroke-width="2"></line>
+            <path class="fill-ink" d="M516,44 l-9,-4 v8 z"></path>
+
+            <!-- NEW row -->
+            <rect class="fill-surface stroke-rule" x="80"  y="150" width="150" height="48" rx="6"></rect>
+            <text x="96" y="171">OPEN_CMD ; touch</text>
+            <text x="96" y="188">pwned&nbsp;&nbsp;+&nbsp;&nbsp;URL</text>
+
+            <rect class="fill-accent" x="300" y="150" width="150" height="48" rx="6"></rect>
+            <text class="fill-inverse" x="312" y="171">parseLauncher-</text>
+            <text class="fill-inverse" x="330" y="188">Command → argv</text>
+
+            <rect class="fill-good" x="520" y="150" width="170" height="48" rx="6"></rect>
+            <text class="fill-inverse" x="536" y="171">execFile(bin, […])</text>
+            <text class="fill-inverse" x="536" y="188">; is an inert string</text>
+
+            <line class="stroke-ink" x1="230" y1="174" x2="296" y2="174" stroke-width="2"></line>
+            <path class="fill-ink" d="M296,174 l-9,-4 v8 z"></path>
+            <line class="stroke-ink" x1="450" y1="174" x2="516" y2="174" stroke-width="2"></line>
+            <path class="fill-ink" d="M516,174 l-9,-4 v8 z"></path>
+
+            <text x="80" y="232" font-size="13">Same malicious input; the only difference is whether a shell ever reads it.</text>
+          </svg>
+          <figcaption>An injected <code>; rm -rf ~</code> is just a string handed to a browser binary, never a command. The PRD's Non-Goals decline to commit to shell pipelines; a future real need is gated on evidence of real use.</figcaption>
+        </figure>
+      </div>
+      <footer class="slide-foot">DD-001 · uncommitted · 10/16 · made with gitban MCP</footer>
+    </section>
+
+    <!-- 11 · Risks -->
+    <section class="slide" id="s11">
+      <p class="kicker">Risks &amp; failure modes</p>
+      <h2 class="headline">The residual risks are all low-likelihood, and each is met by docs or the best-effort nature of auto-open</h2>
+      <div class="evidence">
+        <table>
+          <thead>
+            <tr><th>Risk</th><th>Impact</th><th>Likelihood</th><th>Mitigation</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>An operator depends on shell features and their launch silently stops working.</td>
+              <td>Medium</td>
+              <td>Low</td>
+              <td>Docs state the no-shell contract; auto-open is best-effort and the URL is always shared as a fallback, so a failed override never blocks the session.</td>
+            </tr>
+            <tr>
+              <td>Tokenizer diverges from shell word-splitting on some quoting edge case.</td>
+              <td>Medium</td>
+              <td>Low</td>
+              <td>Contract is deliberately minimal (whitespace + single/double quotes, matching the launcher forms tests and built-ins use); unit tests cover the lifecycle shape, spaced quoted path, unmatched quote, empty input.</td>
+            </tr>
+            <tr>
+              <td>The org's auditor still flags something after the shell is gone.</td>
+              <td>High</td>
+              <td>Low</td>
+              <td>The finding is explicitly the shell <em>shape</em> (#1957); removing <code>cp.exec</code> eliminates the structural match. Undisclosed findings are an upstream PRD-scope question, not a design defect.</td>
+            </tr>
+            <tr>
+              <td>Whitespace-only fall-through masks a genuine operator typo.</td>
+              <td>Low</td>
+              <td>Low</td>
+              <td>Documented; the alternative (no-op on blank) is strictly worse. Truly empty strings already fell through under the old code, so this only extends existing behavior to whitespace.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <footer class="slide-foot">DD-001 · uncommitted · 11/16 · made with gitban MCP</footer>
+    </section>
+
+    <!-- 12 · The required no-execution test -->
+    <section class="slide" id="s12">
+      <p class="kicker">The regression lock</p>
+      <h2 class="headline">Unit tests alone would stay green through a revert to the shell — only an end-to-end no-execution test locks the property</h2>
+      <div class="evidence">
+        <p>Testing is two tiers, both required. The unit tier asserts <code>parseLauncherCommand</code> treats metacharacters as inert tokens (<code>open ; touch pwned</code> → <code>['open', ';', 'touch', 'pwned']</code>), keeps quoted spaced paths as one arg, and strips the lifecycle-shape quotes.</p>
+        <div class="callout">
+          <p><strong>But the unit tier is not enough.</strong> A future revert of the call site to <code>cp.exec(argv.join(' '))</code> would keep <em>every</em> unit test green while reopening injection — the tokenizer never special-cased <code>;</code>, so its tests never notice the sink came back. <strong>Only asserting non-execution catches that.</strong></p>
+        </div>
+        <p><strong>Required end-to-end test (in <code>lifecycle.test.js</code>).</strong> Spawn the real server with a malicious override — <code>node "&lt;capture&gt;" "&lt;marker&gt;" ; touch "&lt;pwned&gt;"</code> — and assert:</p>
+        <ul>
+          <li><strong>(a)</strong> <code>&lt;pwned&gt;</code> never appears on disk — the <code>; touch</code> was interpreted by no shell;</li>
+          <li><strong>(b)</strong> the override fired exactly once — the capture ran, the marker file exists and is non-empty.</li>
+        </ul>
+        <p>It intentionally does <em>not</em> re-assert URL delivery: post-fix the URL is appended after the inert <code>;</code>, so it is no longer at the position the capture script reads. URL delivery stays separately locked by the existing clean "auto-opens once" test and the tokenizer units. This test's sole job is proving non-execution of the sink.</p>
+      </div>
+      <footer class="slide-foot">DD-001 · uncommitted · 12/16 · made with gitban MCP</footer>
+    </section>
+
+    <!-- 13 · Implementation shape & sequence -->
+    <section class="slide" id="s13">
+      <p class="kicker">Implementation shape · single phase</p>
+      <h2 class="headline">One vertical slice, built test-first, touching four files and adding no dependency</h2>
+      <div class="evidence">
+        <p>The whole change is one phase — vertically complete. Built in this order:</p>
+        <ol class="sequence">
+          <li class="sequence-step">
+            <h3>Write the failing tests first</h3>
+            <p>Unit assertions (metacharacter-inert, quoted-spaced-path, lifecycle-shape, edge cases incl. quoted-empty → <code>['']</code>) in <code>browser-launcher.test.js</code>, plus the required no-execution spawn test in <code>lifecycle.test.js</code>.</p>
+          </li>
+          <li class="sequence-step">
+            <h3>Add <code>parseLauncherCommand</code> and export it</h3>
+            <p>~16 lines of standard-library JavaScript in <code>server.cjs</code>; total and best-effort — never throws, an unmatched quote closes at end-of-string.</p>
+          </li>
+          <li class="sequence-step">
+            <h3>Rewrite the override branch to argv + execFile</h3>
+            <p>The call-site swap, with the <code>argv.length &amp;&amp; argv[0]</code> guard and whitespace-only fall-through; in-code comment updated to "no shell — argv via execFile."</p>
+          </li>
+          <li class="sequence-step">
+            <h3>Document <code>BRAINSTORM_OPEN_CMD</code></h3>
+            <p>A compact block in <code>visual-companion.md</code>: accepted shape, opt-in/loopback trust posture, and the explicit "no shell — these features are not honored" note. Quote spaced paths; do not backslash-escape or use <code>~</code>.</p>
+          </li>
+        </ol>
+        <p>Rollback is one revert — the change is confined to <code>server.cjs</code>, the two test files, and <code>visual-companion.md</code>. No state, no schema, no external surface.</p>
+      </div>
+      <footer class="slide-foot">DD-001 · uncommitted · 13/16 · made with gitban MCP</footer>
+    </section>
+
+    <!-- 14 · Open questions & next in lifecycle -->
+    <section class="slide" id="s14">
+      <p class="kicker">Assumptions to challenge · what's next</p>
+      <h2 class="headline">Three assumptions are recorded for the reviewer, and the decision is ready to be locked as an ADR</h2>
+      <div class="evidence">
+        <p>Written autonomously; these are stated for the reviewer to challenge:</p>
+        <ul>
+          <li><strong>Appetite: minimal, surgical.</strong> One finding on a repo that closes scope creep — so the right size is the smallest change that removes the shape while matching the existing <code>execFile</code> pattern, not a configurable launcher subsystem. Challenge if the maintainers actually want a preserved shell escape hatch.</li>
+          <li><strong>Test placement: resolved.</strong> Two tiers, both required — unit contract in <code>browser-launcher.test.js</code>, end-to-end non-execution in <code>lifecycle.test.js</code>. No open question remains.</li>
+          <li><strong>Doc home: <code>visual-companion.md</code>.</strong> The existing companion guide already documents adjacent knobs; it is agent-facing prose, the least-surprising existing home, not a new standalone config doc. Challenge if the project later wants a dedicated operator reference.</li>
+        </ul>
+        <p>This design hangs at <code>m1/s3/brainstorming/companion-security-hardening</code>. Next in the lifecycle: an <strong>ADR</strong> distills and locks the decision, citing this doc for the four-candidate deliberation; then the <strong>sprint-architect</strong> decomposes the single phase into cards — mechanical from the interface design and the binary definition of done.</p>
+      </div>
+      <footer class="slide-foot">DD-001 · uncommitted · 14/16 · made with gitban MCP</footer>
+    </section>
+
+    <!-- 15 · The ask -->
+    <section class="slide slide--ask" id="s15">
+      <p class="kicker">The ask</p>
+      <h2 class="headline">Approve candidate (a) and its single-phase build sequence so the decision can be locked as an ADR</h2>
+      <div class="evidence">
+        <p>We are asking engineering leadership to confirm three things:</p>
+        <ul>
+          <li>The <strong>approach</strong> — retire the shell shape via an in-tree quote-aware argv tokenizer + <code>execFile</code>, dropping shell-only features deliberately and documentedly — is the right one.</li>
+          <li>The <strong>appetite</strong> is right: minimal and surgical, no preserved shell escape hatch, no second config surface.</li>
+          <li>The <strong>build sequence</strong> — test-first, one phase, four files, no new dependency, with the required end-to-end no-execution test as the regression lock — is approved.</li>
+        </ul>
+        <p>On approval, the decision advances to an ADR and then to a sprint of cards.</p>
+      </div>
+      <footer class="slide-foot">DD-001 · uncommitted · 15/16 · made with gitban MCP</footer>
+    </section>
+
+    <!-- 16 · Colophon -->
+    <section class="slide slide--colophon" id="s16">
+      <h2 class="headline">Provenance</h2>
+      <div class="evidence">
+        <p><strong>Source:</strong> <code>docs/designs/DD-001-brainstorm-launcher-shell-free-argv.md</code></p>
+        <p><strong>Source commit:</strong> uncommitted — this deck renders an uncommitted working-tree draft of the design doc; it will be re-stamped with the real commit SHA on the first regeneration after the source lands.</p>
+        <p><strong>Generated:</strong> 2026-07-11 · standalone Slidedoc</p>
+        <p><strong>Steering:</strong> none.</p>
+        <p><strong>Produced with:</strong> gitban MCP (<a href="https://github.com/muunkky/gitban-mcp">github.com/muunkky/gitban-mcp</a>) under Claude Code 2.1.207 · Claude Opus 4.8 (1M context). Built through gitban's full lifecycle — roadmap-anchored PRD → design doc → ADR → sprint → autonomous dispatch (executor → reviewer → router, with adversarial review and TDD at each stage) → these decks. Contribution: <a href="https://github.com/obra/superpowers/issues/1957">obra/superpowers#1957</a> (fork <a href="https://github.com/muunkky/superpowers">muunkky/superpowers</a>).</p>
+        <p>This deck is a view; the source document is authoritative.</p>
+      </div>
+      <footer class="slide-foot">DD-001 · uncommitted · 16/16 · made with gitban MCP</footer>
+    </section>
+
+  </main>
+  <script>
+/* deck-nav.js — gitban deck navigation. Embedded verbatim in every deck.
+ * Zero dependencies. Progressive enhancement only: with JS off the deck is a
+ * complete scrolling document — this script adds keyboard slide-jumps and a
+ * live n/N position indicator, nothing else. Normative behaviors:
+ * references/visual-system.md §4. */
+(function () {
+  "use strict";
+
+  var slides = Array.prototype.slice.call(
+    document.querySelectorAll("main.deck > section.slide")
+  );
+  if (slides.length === 0) { return; }
+
+  /* Live position indicator — exists only when JS runs. */
+  var pos = document.createElement("div");
+  pos.className = "deck-pos";
+  pos.setAttribute("role", "status");
+  pos.setAttribute("aria-live", "polite");
+  document.body.appendChild(pos);
+
+  var current = 0;
+  function render() {
+    pos.textContent = (current + 1) + "/" + slides.length;
+  }
+
+  /* A slide is "current" when it crosses the vertical middle of the
+   * viewport. The -50% root margins collapse the intersection zone to that
+   * midline, so the definition keeps working for slides taller than the
+   * viewport, where any ratio threshold would never fire. */
+  if (typeof IntersectionObserver === "function") {
+    var observer = new IntersectionObserver(function (entries) {
+      for (var i = 0; i < entries.length; i++) {
+        if (entries[i].isIntersecting) {
+          current = slides.indexOf(entries[i].target);
+          render();
+        }
+      }
+    }, { rootMargin: "-50% 0px -50% 0px", threshold: 0 });
+    for (var j = 0; j < slides.length; j++) { observer.observe(slides[j]); }
+  }
+  render();
+
+  function goTo(index) {
+    current = Math.max(0, Math.min(slides.length - 1, index));
+    slides[current].scrollIntoView({ block: "start" });
+    render();
+  }
+
+  /* Unmodified navigation keys only; preventDefault() stops native scrolling
+   * from double-firing on the same keystroke. Modified combinations and
+   * editable-element focus are left to the browser untouched. */
+  document.addEventListener("keydown", function (ev) {
+    if (ev.altKey || ev.ctrlKey || ev.metaKey || ev.shiftKey) { return; }
+    if (ev.defaultPrevented) { return; }
+    var el = ev.target;
+    if (el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.tagName === "SELECT" || el.isContentEditable)) { return; }
+    switch (ev.key) {
+      case "ArrowDown": case "ArrowRight": case "PageDown": goTo(current + 1); break;
+      case "ArrowUp": case "ArrowLeft": case "PageUp": goTo(current - 1); break;
+      case "Home": goTo(0); break;
+      case "End": goTo(slides.length - 1); break;
+      default: return;
+    }
+    ev.preventDefault();
+  });
+})();
+  </script>
+</body>
+</html>
