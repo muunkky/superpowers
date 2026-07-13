@@ -368,12 +368,17 @@ compounds — people cite you, take your review notes, and eventually the mainta
 prior that it's worth his time.* That either happens or it doesn't, and the only way to know is to write
 down what other people actually did.
 
-**Log a row only when someone else did something because of what we did** — a citation, an endorsement, our
-code taken, a defect acted on, a close with its stated reason. **Never log volume** (PRs opened, docs
-written, lines changed): that's an input, not a signal, and a ledger full of it is a mood board.
+It's an **index, not an archive** — short rows, link out to GitHub. **Log a row only when someone else did
+something because of what we did** (a citation, an endorsement, our code taken, a defect acted on, a close)
+**or when we did something we shouldn't repeat.** Never log volume — PRs opened, docs written, lines
+changed are inputs, not signals, and a ledger full of them is a mood board.
 
-**Log the bad rows too.** Silence at a repo with ~178 open PRs and ~3% movement is *data about the repo*,
-not a verdict on us — and you can only tell the difference if you wrote down the baseline.
+**Negatives go first, and when we're rejected or criticized, quote the one operative sentence.** Not for
+fidelity — for us. We soften bad news about ourselves without noticing: *"he had concerns about scope"* and
+*"this pull request is slop that's made of lies"* are the same event after a paraphrase.
+
+**Keep the baseline in view.** Silence at a repo with ~178 open PRs and ~3% movement is *data about the
+repo*, not a verdict on us. You can only tell the difference if the baseline is written down.
 
 ## Keep a record — the log + the roadmap
 
