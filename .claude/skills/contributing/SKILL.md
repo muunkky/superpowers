@@ -9,9 +9,10 @@ description: >
   whether to engage with an issue at all. Also load it when the user says "push this up", "open
   the PR", "contribute this", "send it to obra", "comment on that issue", "help on their PR",
   "should we take this one?", or asks how the local→fork→upstream split works. It carries: how
-  PRs actually die here (76% are closed unmerged, and the top killer is a claim that does not
-  survive a check against the tree); socialize-before-you-build and why that comment is your
-  alibi; write-like-a-person (AI-sounding text gets closed regardless of merit); the one-line
+  PRs actually die here (84.5% closed unmerged; the fatal disqualifier is any false statement in
+  the body — they verify it — while "batch" is far rarer and more specific than it looks);
+  socialize-before-you-build and why that comment is your alibi; write-like-a-person (AI-sounding
+  text gets closed regardless of merit); the one-line
   disclosure; deriving a clean code-only branch targeted at `dev`; keeping every gitban artifact
   and all `.claude/` tooling on the fork only; and the credibility ledger (CREDIBILITY.md) that
   tracks what is actually working. Pairs with `gitban-pr`, which writes the PR body itself.
