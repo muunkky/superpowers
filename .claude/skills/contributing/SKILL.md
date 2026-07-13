@@ -73,6 +73,36 @@ You reasoned about the code instead of running it.
 **Do instead:** run it, then quote the command and the output. "Reproduced on pristine `dev` @ `<sha>`:
 `<command>` → `<output>`." Never write a sentence you have not executed in the last hour.
 
+### ✅ How to produce eval evidence — free, local, and it's THEIR method
+
+**You can always run evals. We wrongly believed we couldn't for an entire session and it cost us real
+content in a PR.**
+
+`skills/writing-skills/SKILL.md` prescribes the method, and obra closed an RFC proposing anything else
+(#1597) with *"largely covered already."* It is **RED/GREEN pressure testing**:
+
+> *"If you didn't watch an agent fail without the skill, you don't know if the skill teaches the right thing."*
+> **RED** — agent violates the rule **without** the skill (baseline). **GREEN** — agent complies **with** it.
+
+**The rig — costs nothing, runs on your subscription:**
+
+```bash
+# two trees, identical except your change
+git archive upstream/dev | tar -x -C A/ ; git archive <your-branch> | tar -x -C B/
+
+# same prompt, fresh headless agent, N reps per arm, no hint what you're testing
+claude -p "<a realistic task where the rule should fire>" --plugin-dir A/ --dangerously-skip-permissions
+claude -p "<same prompt>"                                --plugin-dir B/ --dangerously-skip-permissions
+```
+
+Grade deterministically (grep for the behaviour), **3+ reps per arm** (agents are non-deterministic — obra
+himself ran #1801 *"across 3 independent sessions"* before calling a claim false), and **paste the runs, not
+a summary** — he asks for *"transcripts, not summaries"* (#1166).
+
+**Quorum (`superpowers-evals`) is his internal lab, not the contributor bar.** It costs $7–15/run and needs
+an API key, `gauntlet`, and `bun`. You do not need it. If you want it anyway: clone it, `bun install`,
+`bun link` gauntlet, run with `--credential opus`.
+
 ### ❌ 2. Amnesia about intent — you didn't ask why the code is like that
 
 You "fixed" something that was deliberately done. **They git-blame every change and name the commit.**
