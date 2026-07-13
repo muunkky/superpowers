@@ -332,6 +332,14 @@ upstream thread should read as a thoughtful person, never an AI dump.
 
 ## Opening the upstream PR (obra/superpowers)
 
+> **⛔ The PR body is written by the `gitban-pr` skill — load it. Never hand-roll a PR body.**
+> These two skills are a pair: **this** one decides *whether and how to engage* (read the room, socialize
+> first, derive the clean branch, what actually kills PRs here); **`gitban-pr`** writes *the body itself*,
+> and its `SKILL.local.md` overlay carries the upstream-specific overrides (fill obra's template verbatim,
+> target `dev`, disclosure table only, no process narration).
+> Hand-rolling the body is how we shipped a disclosure that read as a gitban advertisement and a word count
+> that was wrong by 36%. Load both, every time.
+
 `obra/superpowers` has a ~94% rejection rate and closes slop on sight. Full rules: the **tracked root
 `CLAUDE.md`** + `.github/PULL_REQUEST_TEMPLATE.md`. The load-bearing ones:
 

@@ -1,5 +1,39 @@
 # Project overlay — muunkky/superpowers fork
 
+## ⛔ STOP — load the `contributing` skill first. This overlay is only half the job.
+
+**If this PR targets `obra/superpowers` upstream and you have not loaded the `contributing` skill, stop
+and load it now.** These two are a pair and are almost never used apart:
+
+- **`contributing`** owns *whether and how to engage at all* — reading the room, socializing before you
+  build, deriving the clean code-only branch, the fork/upstream split, how PRs actually die here, and the
+  credibility ledger.
+- **this skill** owns *the PR body itself.*
+
+Writing the body without the other half is how you produce a technically-correct PR that gets closed for a
+reason you never saw coming. **It has already happened to us:** a PR body was hand-rolled without the
+playbook and shipped a disclosure that read as a gitban advertisement, plus a word count that was wrong
+by 36%.
+
+## Every claim you write will be machine-tested. Plan accordingly.
+
+**76% of decided PRs here are closed unmerged (416 vs 131), and the single most common cause is a claim
+that does not survive a check against the tree.** obra triages with an adversarial agent that re-tests
+every factual claim against `dev` (his words, closing #1903: *"every factual claim tested against the
+current `dev` tree, then adversarially re-checked by a second, independent agent"*).
+
+So, writing this body:
+
+- **Never state a number a script cannot confirm.** Use `git diff --numstat` output, grep results, test
+  counts — things the verifier will reproduce and agree with. *We shipped a "~120 added words" claim that
+  was actually 163; it was caught internally, but that is precisely the free kill you are handing over.*
+- **Honest limits are safe. Overclaims are fatal.** "I ran zero evals and here is why" cannot be punished.
+  "Tested adversarially" when nothing was, can. **Leave the box unticked and say why.**
+- **Before submitting, grep the file you touched for rules your new prose contradicts.** #1944 died because
+  its addition permitted what the same file's Red Flags forbade.
+- **Never say a closed/competing PR "only does X" unless you have read its diff.** We nearly shipped
+  "#1934 only deletes…" — false, and about the maintainer's own PR.
+
 ## ⛔ Before you open it: can you point at where you socialized it?
 
 Upstream closes **"bulk or spray-and-pray"** PRs on sight — *"an agent pointed at the issue list and told
