@@ -178,6 +178,45 @@ The repo's own word for it is **slop**, and it's 22 hits in the corpus. The smel
 
 ---
 
+### ❌ 8. Noise — comments about YOU instead of about THEIR code
+
+Anti-pattern 7 is *how* you write. This is *whether you should write at all*.
+
+**The test, before every comment: does this serve HIM? If the subject is you, don't post it.**
+
+**Everything below is noise. We posted all of it on 2026-07-13 and had to delete it:**
+
+| What we posted | Why it's noise |
+|---|---|
+| *"Closing this myself, for a process reason rather than a technical one."* | He didn't ask. The timeline already shows the close. |
+| *"Reopening this. I closed it earlier because…"* | Our indecision, narrated on his thread. |
+| *"Amended: I dropped the Red Flags bullet."* | A changelog of our own second-guessing. The diff shows it. |
+| *"Correction to this comment. I said I couldn't run the harness…"* | A correction to noise we created. |
+| *"Correcting something I said on this thread…"* | A correction to a correction. |
+
+Four of our five comments on #1982 were us **arguing with ourselves in public.** A maintainer opening that
+thread sees a contributor in a spiral, not a contribution. **We deleted all of them; the PR body already
+carried every fact that mattered.**
+
+**The rules:**
+
+- **Never narrate a decision you made about your own PR.** Closing, reopening, retargeting, amending — the
+  timeline and the diff already say it. Adding prose is noise on top of a fact.
+- **If you must correct something, EDIT the original comment. Do not stack a new one.** A thread of
+  self-corrections reads as chaos, and each correction is itself more noise. Better still: don't post the
+  thing that needs correcting.
+- **Delete your own noise.** If a comment served your feelings rather than his review, remove it. The
+  timeline keeps the events; you don't owe him the commentary.
+- **A limitation of the change goes in the PR BODY, not a comment.** The body is the artifact he reads. The
+  thread is for dialogue *with him* — questions you're asking, answers to what he said.
+- **The one exception, and it is not optional:** a **false statement** must be corrected, publicly, before
+  he finds it (anti-pattern 3). That is integrity, not noise. But note the cheaper path — *don't make
+  claims you might have to retract.*
+
+**What legitimately belongs on the thread:** the socialize-first intent comment (before you build), an
+answer to something he asked, a genuine finding about *his* code, or a correction of a false claim. That's
+the whole list.
+
 ### The tells that mark you as ungrounded
 
 | Tell | Why it kills |
