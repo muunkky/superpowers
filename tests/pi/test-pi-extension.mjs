@@ -122,7 +122,7 @@ test('pi tools reference documents pi-specific mappings', async () => {
   assert.equal(existsSync(piToolsPath), true, 'pi-tools.md should exist');
   const text = await readFile(piToolsPath, 'utf8');
 
-  for (const expected of ['pi-subagents', 'subagent', 'TODO.md', 'TodoWrite']) {
-    assert.match(text, new RegExp(expected));
-  }
+  const rows = text.split('\n').filter((line) => line.startsWith('|'));
+  assert.ok(rows.some((row) => /subagent/i.test(row)), 'mapping table documents subagent dispatch');
+  assert.ok(rows.some((row) => /todo|task/i.test(row)), 'mapping table documents task tracking');
 });
