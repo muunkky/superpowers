@@ -272,10 +272,9 @@ upstream thread should read as a thoughtful person, never an AI dump.
   not *"please review my documents."* The fork carries the depth; the comment carries the intent.
 - **Never dump generated PRDs/ADRs or long AI analysis inline** — that's exactly what the fork links exist
   to avoid.
-- **Substantive comments carry the disclosure too.** obra's rule is "every PR **and issue** must disclose,"
-  so any comment that *offers or describes agent-produced work* ends with a compact one-liner — e.g.
-  *"Disclosure (per contribution rules): produced with an autonomous development harness — gitban — on
-  Claude Code / Claude Opus; reasoned from the issue + code inspection."* Skip it only for a trivial one-liner.
+- **Substantive comments carry the disclosure too.** obra's rule is "every PR **and issue** must disclose."
+  Use the **exact one-liner from *The disclosure* above** — never improvise a variant, never describe what
+  gitban does. Skip it only for a trivial one-liner comment.
 - **Cross-link both ways:** fork issue / showcase ↔ upstream PR ↔ upstream issue.
 
 ## Opening the upstream PR (obra/superpowers)
