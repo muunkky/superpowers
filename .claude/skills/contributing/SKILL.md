@@ -50,6 +50,54 @@ the fork first is what gives you the artifacts to reference and lets you make th
 — or walk away cleanly from a duplicate. (Real case: #1957 — we published the full fork showcase, then the
 right upstream move turned out to be a light comment, not a PR, because #1964 landed the same fix first.)
 
+## ⛔ NEVER POST DIRECTLY. Draft → preflight → adversarial review → post.
+
+**Every upstream comment and every PR body goes through this gate. No exceptions, no "it's just a
+one-liner."** Everything we had to retract on 2026-07-13 — a false claim that we couldn't run evals, a
+promise we falsified four minutes later, a ticked box we hadn't earned, four self-narrating comments, a
+gitban sales pitch in the disclosure — would have been caught here. We posted them because we typed
+straight into `gh`.
+
+**1. Draft to a scratch file.** Never compose in the `gh` command. `tmp/comment.md`, `tmp/pr-body.md`.
+
+**2. Run the mechanical check:**
+
+```bash
+.claude/skills/contributing/preflight.sh --text tmp/comment.md   # a draft
+.claude/skills/contributing/preflight.sh                          # every live PR + thread
+```
+
+It greps for the specific things we have actually shipped and retracted: the "can't run evals" lie,
+"by inspection", approximate counts, bold saturation, process narration, the gitban pitch, "invents
+nothing", and self-narrating noise. **A clean run is necessary, not sufficient** — it only knows the
+mistakes we have already made.
+
+**3. Then hand it to an isolated subagent for adversarial review.** Fresh context, no stake in the prose,
+brief it like this:
+
+> You are the maintainer of `obra/superpowers`. You have 178 open PRs, you close 84.5% of them, and you
+> triage with an agent that re-runs every factual claim against the tree. Read the draft at `<path>`.
+>
+> Do not improve it. **Try to kill it.** Specifically:
+> 1. **Find one claim you can falsify.** Any number, any "this test fails", any "no prior PRs found", any
+>    named reviewer — check it against the repo. One false claim closes the PR regardless of merit.
+> 2. **Does any sentence serve the AUTHOR rather than me?** Their process, their revision history, their
+>    corrections, their feelings about their own PR. If so it is noise — say so.
+> 3. **Does it read like an agent wrote it?** Bolding, headers, length, self-narration. Our word for that
+>    is "slop" and we close it on sight.
+> 4. **Is any ticked box unsupported by the text?**
+> 5. **Would I be annoyed to read this?**
+>
+> Return: KILL (with the specific reason) or PASS. Quote the offending line. Be hostile — you are not here
+> to be nice, you are here to stop a bad contribution reaching a maintainer who will remember it.
+
+**4. Fix what it finds. Re-run. Then post.**
+
+**Why an isolated subagent and not just re-reading it yourself:** you cannot see your own noise. Every
+correction we posted today was itself noise, written by the same context that produced the thing it was
+correcting. A reviewer with no memory of writing it is the only one who can tell you the paragraph you are
+proudest of is the one that gets you closed.
+
 ## Anti-patterns — what actually gets you closed
 
 **The triage is not a code reviewer. It is a groundedness detector.** They do not ask "is this code good."
