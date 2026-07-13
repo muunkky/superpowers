@@ -394,10 +394,6 @@ Done!
 - Move to next task while the review has open Critical/Important issues
 - Re-dispatch a task the progress ledger already marks complete — check
   the ledger (and `git log`) after any compaction or resume
-- Leave subagents open once you are finished with them — release a task's
-  implementer, reviewer and fixers at task close-out, and the final
-  whole-branch reviewer once you have acted on its findings; you will send
-  none of them further input
 
 **If subagent asks questions:**
 - Answer clearly and completely
