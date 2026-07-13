@@ -72,24 +72,35 @@ It greps for the specific things we have actually shipped and retracted: the "ca
 nothing", and self-narrating noise. **A clean run is necessary, not sufficient** — it only knows the
 mistakes we have already made.
 
-**3. Then hand it to an isolated subagent for adversarial review.** Fresh context, no stake in the prose,
-brief it like this:
+**3. Then hand it to an isolated subagent for verification.**
 
-> You are the maintainer of `obra/superpowers`. You have 178 open PRs, you close 84.5% of them, and you
-> triage with an agent that re-runs every factual claim against the tree. Read the draft at `<path>`.
+**Brief it NEUTRALLY. Never prime it to attack.** Words like *"hostile"*, *"try to kill this"*, *"find the
+lie"* create demand characteristics — the reviewer has to produce findings to satisfy the brief, so it
+manufactures or inflates them, and you can no longer tell a real defect from an invented one. **Ask it to
+verify, not to destroy.** Then the findings mean something.
+
+> Verify this draft before it goes to `obra/superpowers`, a repo that re-runs every factual claim in a
+> submission against the tree. The repo is at `<path>`; `upstream/dev` is fetched.
 >
-> Do not improve it. **Try to kill it.** Specifically:
-> 1. **Find one claim you can falsify.** Any number, any "this test fails", any "no prior PRs found", any
->    named reviewer — check it against the repo. One false claim closes the PR regardless of merit.
-> 2. **Does any sentence serve the AUTHOR rather than me?** Their process, their revision history, their
->    corrections, their feelings about their own PR. If so it is noise — say so.
-> 3. **Does it read like an agent wrote it?** Bolding, headers, length, self-narration. Our word for that
->    is "slop" and we close it on sight.
-> 4. **Is any ticked box unsupported by the text?**
-> 5. **Would I be annoyed to read this?**
+> **Check each claim by executing it, not by reading it:**
+> 1. **Numbers** — does every count match `gh pr view <n> --json additions,deletions,changedFiles`?
+> 2. **Quotations** — grep each one in the tree. Is it there verbatim?
+> 3. **Cited PRs/issues** — is each one's state (open / merged / closed) described correctly *right now*?
+> 4. **Behavioural claims** — "this test fails on dev", "the eval showed X". Run them.
+> 5. **Ticked boxes** — is each supported by the text and the diff?
+> 6. **Named people** — does the GitHub account exist?
 >
-> Return: KILL (with the specific reason) or PASS. Quote the offending line. Be hostile — you are not here
-> to be nice, you are here to stop a bad contribution reaching a maintainer who will remember it.
+> **Then as a reader:**
+> 7. Does any sentence serve the author rather than the maintainer — their process, their revision history,
+>    their feelings about their own PR?
+> 8. Would a maintainer recognise this as machine-written and be irritated by it?
+>
+> Report what you find, with the command you ran and its output. **If a claim checks out, say so. If you
+> find nothing wrong, say that** — a clean verdict is a useful result, and inventing a finding to look
+> thorough is worse than useless.
+
+**Then verify what it reports.** A reviewer can be wrong in either direction. Re-run its checks yourself
+before you act on any of them — especially before you change a diff on its say-so.
 
 **4. Fix what it finds. Re-run. Then post.**
 
