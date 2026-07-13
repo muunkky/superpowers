@@ -75,7 +75,7 @@ overlay for this fork). Never hand-roll a PR body.
 If you are writing an upstream comment or a PR body and you have not loaded these, you have
 already made a mistake. Stop and load them.
 
-Upstream rejects ~94% of PRs and closes slop on sight. Do not edit the tracked root `CLAUDE.md` —
+Upstream rejects 84.5% of decided PRs (measured; obra's own README says 94%) and closes slop on sight. Do not edit the tracked root `CLAUDE.md` —
 it is obra's.
 
 # Notes

@@ -75,6 +75,20 @@ for p in $PRS; do
     { grep -qE "\b$add\b" <<<"$body" || flag "count claim doesn't match real diff (+$add/-$del in ${files}f)"; }
   [ "$base" = "dev" ] || flag "targets $base, not dev"
 
+  # Cited PR/issue states go STALE — the queue moves under you. #1932 and #1933
+  # flipped open→merged while our PRs sat there. Re-check every one.
+  for c in $(grep -oE "#(1[0-9]{3}|[0-9]{3})" <<<"$body" | tr -d '#' | sort -un); do
+    [ "$c" = "$p" ] && continue
+    real=$(gh pr view "$c" -R "$UP" --json state,mergedAt --jq 'if .mergedAt then "MERGED" else .state end' 2>/dev/null)
+    [ -z "$real" ] && real=$(gh issue view "$c" -R "$UP" --json state --jq '.state' 2>/dev/null)
+    [ -z "$real" ] && continue
+    said=""
+    grep -qE "#$c[^0-9].{0,40}(merged|MERGED)" <<<"$body" && said="MERGED"
+    grep -qE "#$c[^0-9].{0,40}(open|OPEN|draft)" <<<"$body" && said="OPEN"
+    grep -qE "#$c[^0-9].{0,40}(closed|CLOSED)" <<<"$body" && said="CLOSED"
+    [ -n "$said" ] && [ "$said" != "$real" ] && flag "says #$c is $said — it is $real (state drifted)"
+  done
+
   check_text "body" "$body" 0
 
   # our comments on the thread

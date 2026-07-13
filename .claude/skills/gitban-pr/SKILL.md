@@ -484,7 +484,9 @@ several of your defaults are wrong for it. Override them:
 - **Search open AND closed PRs first** and fill the template's existing-PRs section: what you found and
   why yours differs — especially why a previously *closed* attempt should succeed where it didn't.
 - **Link the fork showcase once** (transparency; also advertises gitban) — but lead with the fix.
-- Open as a **draft**; a human reviews the complete diff before it is submitted.
+- **Upstream PRs open READY-FOR-REVIEW, not draft** (`--draft=false`). Draft is the right default for
+  internal/fork work, but obra's triage assesses mergeability and a draft reads as unfinished. A human
+  reviews the complete diff before it is submitted — that part holds either way.
 
 The rest of the local→fork→upstream split (clean-branch derivation, the `.git/info/exclude` guardrail,
 building the showcase branch, issue etiquette) lives in the **`contributing`** skill — consult it.

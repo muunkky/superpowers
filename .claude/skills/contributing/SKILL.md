@@ -50,7 +50,7 @@ the fork first is what gives you the artifacts to reference and lets you make th
 — or walk away cleanly from a duplicate. (Real case: #1957 — we published the full fork showcase, then the
 right upstream move turned out to be a light comment, not a PR, because #1964 landed the same fix first.)
 
-## ⛔ NEVER POST DIRECTLY. Draft → preflight → adversarial review → post.
+## ⛔ NEVER POST DIRECTLY. Draft → preflight → verify → post.
 
 **Every upstream comment and every PR body goes through this gate. No exceptions, no "it's just a
 one-liner."** Everything we had to retract on 2026-07-13 — a false claim that we couldn't run evals, a
@@ -132,36 +132,6 @@ You reasoned about the code instead of running it.
 **Do instead:** run it, then quote the command and the output. "Reproduced on pristine `dev` @ `<sha>`:
 `<command>` → `<output>`." Never write a sentence you have not executed in the last hour.
 
-### ✅ How to produce eval evidence — free, local, and it's THEIR method
-
-**You can always run evals. We wrongly believed we couldn't for an entire session and it cost us real
-content in a PR.**
-
-`skills/writing-skills/SKILL.md` prescribes the method, and obra closed an RFC proposing anything else
-(#1597) with *"largely covered already."* It is **RED/GREEN pressure testing**:
-
-> *"If you didn't watch an agent fail without the skill, you don't know if the skill teaches the right thing."*
-> **RED** — agent violates the rule **without** the skill (baseline). **GREEN** — agent complies **with** it.
-
-**The rig — costs nothing, runs on your subscription:**
-
-```bash
-# two trees, identical except your change
-git archive upstream/dev | tar -x -C A/ ; git archive <your-branch> | tar -x -C B/
-
-# same prompt, fresh headless agent, N reps per arm, no hint what you're testing
-claude -p "<a realistic task where the rule should fire>" --plugin-dir A/ --dangerously-skip-permissions
-claude -p "<same prompt>"                                --plugin-dir B/ --dangerously-skip-permissions
-```
-
-Grade deterministically (grep for the behaviour), **3+ reps per arm** (agents are non-deterministic — obra
-himself ran #1801 *"across 3 independent sessions"* before calling a claim false), and **paste the runs, not
-a summary** — he asks for *"transcripts, not summaries"* (#1166).
-
-**Quorum (`superpowers-evals`) is his internal lab, not the contributor bar.** It costs $7–15/run and needs
-an API key, `gauntlet`, and `bun`. You do not need it. If you want it anyway: clone it, `bun install`,
-`bun link` gauntlet, run with `--credential opus`.
-
 ### ❌ 2. Amnesia about intent — you didn't ask why the code is like that
 
 You "fixed" something that was deliberately done. **They git-blame every change and name the commit.**
@@ -190,22 +160,37 @@ removed it, you are not fixing a bug — you are reverting a decision, and you n
 say on the thread is part of the submission**: if you promise something and then do otherwise, correct it
 in public before they find it.
 
-### ❌ 4. Volume over care
+### ❌ 4. Volume without engagement — a trawl, not a count
 
-> 12 PRs in six hours on branches literally named **`pr-factory/issue-<N>-*`** (#627–640).
-> 10 PRs in **34 seconds** (#1901–#1910).
+**The rule is NOT "one PR at a time." It is "every PR has a thread that pre-dates its code."**
 
-The blank templates and fake reviewers are *downstream* of this, not separate charges. It is the **only**
-thing shown killing an otherwise-perfect PR by itself: #1904 was *"cleanly mergeable right now"* — closed.
+There are only **three** batch incidents in the repo's history, and they are all machine sprays:
 
-**Do instead:** one submission at a time. If you have several ready, ship the one cheapest to verify and
-hold the rest. Impatience → socialize more issues, not open more PRs.
+> 12 PRs in six hours on branches literally named **`pr-factory/issue-<N>-*`** (#627–640), templates blank.
+> 10 PRs in **34 seconds** (#1901–#1910), with a "human reviewer" whose GitHub account doesn't exist.
 
-**Your defence is the thread, and it must pre-date the code.** A comment where you laid out the problem and
-asked for a sanity check *before writing anything* is the one thing a trawler cannot retrofit — GitHub
-timestamps it, and producing ten of them across ten issues *is* the work they skipped. **That is why
-socialize-before-you-build is not etiquette. It is your alibi.** No prior comment on the thread → don't open
-the PR.
+**What it catches is an agent pointed at the issue list** — obra's own words. The tells are one PR per issue,
+no prior engagement anywhere, blank templates, fabricated reviewers. **Not "several PRs."**
+
+It is real, and it does close correct code: #1904 was *"cleanly mergeable right now"* and was closed for the
+pattern alone. But the pattern is the trawl, not the number.
+
+**Do instead — the per-PR test, not a quota:**
+
+> **Is there a comment from you on that issue thread, posted BEFORE you wrote any code, where you laid out
+> the problem and asked for a sanity check?**
+>
+> **Yes** → open it. **No** → don't. Go post it and wait.
+
+That comment is the one thing a trawler cannot retrofit — GitHub timestamps it, and producing ten of them
+across ten issues *is* the work they skipped. **Socialize-before-you-build is not etiquette. It is your
+alibi.**
+
+Several PRs each clearing that test is not a batch. Several that don't is a trawl — even if you spread them
+over a week.
+
+**Still true:** speed is the smell. If a human is impatient, socialize more issues; don't open more PRs
+faster. And when several are ready, lead with the one cheapest for him to verify.
 
 ### ❌ 5. Misattributed causation — it's not their bug
 
@@ -276,6 +261,36 @@ carried every fact that mattered.**
 answer to something he asked, a genuine finding about *his* code, or a correction of a false claim. That's
 the whole list.
 
+## ✅ How to produce eval evidence — free, local, and it's THEIR method
+
+**You can always run evals. We wrongly believed we couldn't for an entire session and it cost us real
+content in a PR.**
+
+`skills/writing-skills/SKILL.md` prescribes the method, and obra closed an RFC proposing anything else
+(#1597) with *"largely covered already."* It is **RED/GREEN pressure testing**:
+
+> *"If you didn't watch an agent fail without the skill, you don't know if the skill teaches the right thing."*
+> **RED** — agent violates the rule **without** the skill (baseline). **GREEN** — agent complies **with** it.
+
+**The rig — costs nothing, runs on your subscription:**
+
+```bash
+# two trees, identical except your change
+git archive upstream/dev | tar -x -C A/ ; git archive <your-branch> | tar -x -C B/
+
+# same prompt, fresh headless agent, N reps per arm, no hint what you're testing
+claude -p "<a realistic task where the rule should fire>" --plugin-dir A/ --dangerously-skip-permissions
+claude -p "<same prompt>"                                --plugin-dir B/ --dangerously-skip-permissions
+```
+
+Grade deterministically (grep for the behaviour), **3+ reps per arm** (agents are non-deterministic — obra
+himself ran #1801 *"across 3 independent sessions"* before calling a claim false), and **paste the runs, not
+a summary** — he asks for *"transcripts, not summaries"* (#1166).
+
+**Quorum (`superpowers-evals`) is his internal lab, not the contributor bar.** It costs $7–15/run and needs
+an API key, `gauntlet`, and `bun`. You do not need it. If you want it anyway: clone it, `bun install`,
+`bun link` gauntlet, run with `--credential opus`.
+
 ### The tells that mark you as ungrounded
 
 | Tell | Why it kills |
@@ -285,9 +300,9 @@ the whole list.
 | A named reviewer | **They look up the account.** |
 | A ticked box | They open the file and check. #1925. |
 | "No existing PRs found" | They search — including *your own*. #1166. |
-| Several PRs at once | The pattern is the charge. #1904. |
+| Several PRs, none socialized | The *trawl* is the charge, not the count. #1904. |
 
-### Noise — do NOT panic about these
+### Things that are NOT the reason — do not panic about these
 
 - **`main` vs `dev`:** 16 of 28 PRs targeted `main`. **Never the reason.** *"just housekeeping, not why
   we're closing"* (#956).
@@ -322,7 +337,7 @@ wrong, not that you filed in the wrong place. Read the footer before you decide 
 
 ## The sequence — how a good contributor lands a change
 
-The *order* matters as much as the work. At a 94%-rejection, anti-slop upstream you want to appear as a
+The *order* matters as much as the work. At an 84.5%-rejection, anti-slop upstream you want to appear as a
 person **thinking out loud and checking in**, then deliver a **clean, pre-discussed PR** — never a cold
 monolith dropped from nowhere. So you socialize the **plan** before you build, and the fork publishes in
 **two waves** (planning artifacts early, code + decks after). Sections below detail each step.
@@ -342,9 +357,11 @@ monolith dropped from nowhere. So you socialize the **plan** before you build, a
    `showcase/<slug>` (open the browsable fork PR) and finish the mirror-issue narrative.
 5. **Derive the clean upstream branch** — `fix/<slug>` off `upstream/dev`, `git checkout <work-branch> --
    <code files>`, commit clean; verify `git diff --stat upstream/dev` is exactly the change.
-6. **Open the upstream code PR** — push `fix/<slug>`, open **`muunkky:fix/<slug>` → `obra:dev`** as a
-   **draft**; reference the earlier discussion ("as discussed above"); fill obra's template completely;
-   disclosure table; link the fork showcase; a human reviews the full diff before it goes out.
+6. **Open the upstream code PR** — push `fix/<slug>`, open **`muunkky:fix/<slug>` → `obra:dev`
+   ready-for-review, NOT a draft.** (`gitban-pr` defaults to draft for internal work; upstream is the
+   exception — the triage assesses mergeability, and a draft reads as unfinished. Pass `--draft=false`.)
+   Reference the earlier discussion ("as discussed above"); fill obra's template completely; disclosure
+   table; link the fork showcase; **a human reviews the full diff before it goes out.**
 7. **Shepherd it** — respond to review judiciously, in the human's voice.
 8. **Record it** (see *Keep a record*) — append the interaction to the contributions log and mirror its refs
    into the matching roadmap node. A landed PR, a deferral, or just a comment all count.
@@ -462,9 +479,12 @@ upstream thread should read as a thoughtful person, never an AI dump.
 
 - **Mirror the upstream issue as a fork issue.** Post the full gitban narrative there — PRD → design doc →
   ADR as comments — so the story is visible and ours to shape.
-- **Upstream comments are the human's.** The agent may *draft* them, but the human posts / approves the
-  wording word-for-word, in their own voice. This is the single surface where AI-shaped text does the most
-  damage — the maintainer's trust is the scarce resource.
+- **Every upstream comment clears the gate before it is posted** — scratch file → `preflight.sh --text` →
+  isolated verifier → post. This is the single surface where AI-shaped text does the most damage, so the
+  control has to be one that actually runs. **Do not write "the human approves each comment word-for-word"
+  and then post without them** — the human is usually away, and a control you skip every time is worse than
+  none. The gate above is the control. **The one thing that IS the human's: they review the complete diff
+  before a PR goes out.** obra requires it, and it is the one claim we ever tick a box for.
 - **The intent comment (Stage 2) leads with understanding, then offers help, then asks.** Keep it to a few
   sentences. A shape that works:
 
