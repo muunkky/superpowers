@@ -71,13 +71,39 @@ The triage checks the **diff** against the tree, and *separately* checks the **s
 disclosure, batch pattern, and the honesty of every claim in the body. **Failing the second kills you even
 when you pass the first.**
 
-### The three genuine disqualifiers — fatal on their own, regardless of merit
+### The genuine disqualifiers — fatal on their own, regardless of merit
 
-1. **Batch / spray-and-pray.** Sole cause in #1904 and #1907 — clean, correct, mergeable, closed anyway.
-2. **Any false statement in the PR body or thread.** They verify it. They caught a "human reviewer" named
-   `msh01` **that is not a real GitHub account**. They catch ticked boxes the diff contradicts, and stray
-   syntax errors. **A sentence the repo state falsifies is fatal** — this is the category that kills.
-3. **Venue** — domain-specific, third-party dep, or "belongs in a plugin." Unfixable by editing the diff.
+1. **Any false statement in the PR body or thread.** They *verify* it. They caught a "human reviewer" named
+   `msh01` by checking whether the GitHub account existed — **it didn't**. They catch ticked boxes the diff
+   contradicts, and stray syntax errors. **A sentence the repo state falsifies is fatal.** This is the
+   category that kills, and it's the one you're most likely to hand them by accident.
+2. **Venue** — domain-specific, third-party dep, or "belongs in a plugin." Unfixable by editing the diff.
+3. **Batch / spray-and-pray** — real, but **far rarer and far more specific than it looks.** See below.
+
+### What "batch" ACTUALLY means — don't panic-match on timestamps
+
+**Only THREE batch incidents exist in the entire repo history.** Nine closures reference the rule, and they
+resolve to these:
+
+| Incident | Scale | The real tells |
+|---|---|---|
+| tianma-if (#1901–#1910) | **10 PRs in 34 seconds** | Fabricated reviewer `msh01` (account doesn't exist); unrelated subsystems |
+| stablegenius49 (#627–#640) | **12 PRs in six hours** | Branches named **`pr-factory/issue-<N>-*`** — one per open issue, trawled from the tracker. Template **entirely blank**: no disclosure, no human-review box, no evaluation. Targeted `main`. |
+| #1596 | part of a spray | — |
+
+**The rule catches a machine trawling the issue list** — which is what obra's own words say: *"an agent
+pointed at the issue list and told to fix things."* The tells are **10–12 PRs, one per issue, blank
+templates, fabricated or missing reviewer, no prior engagement on any thread.** A `pr-factory/issue-N`
+branch name is the pattern confessing.
+
+**Several well-socialized PRs, each with a complete template and a real reviewer, is not that.** Do not
+over-correct.
+
+> **We got this wrong and it cost us.** We opened 4 PRs in 23 minutes, pattern-matched on the timestamps
+> alone, panicked, and self-closed three. The panic then produced a **false statement on the thread** ("the
+> other three stay closed until this one resolves") that we falsified four minutes later by reopening them.
+> **We manufactured a genuinely fatal disqualifier (#1) while fleeing a risk we didn't actually have (#3).**
+> Check what the rule catches before you act on it.
 
 ### Survivable (never a sole cause)
 
@@ -86,7 +112,11 @@ when you pass the first.**
 - **Merge conflicts / staleness** — explicitly forgiven: *"dev's history was recently rewritten, so please
   don't read the CONFLICTING state… as anything you did wrong."* (#1937)
 
-### Ranked kill reasons (all 410 commented closures)
+### Ranked kill reasons — ⚠️ REGEX-TAGGED, NOT VERIFIED
+
+**Treat these as a rough prior, not fact.** They come from pattern-matching 410 closure comments, and
+pattern-matching over-counts: the regex reported "batch: 35" when the truth is **three incidents** (many
+closures merely *reference* the rule). Verify before you act on any row.
 
 | # | Reason | Count |
 |---|---|---:|
