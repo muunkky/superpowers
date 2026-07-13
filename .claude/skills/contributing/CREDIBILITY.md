@@ -62,8 +62,8 @@ our four open PRs will likely be judged in the same pass.
 
 | Risk | Severity |
 |---|---|
-| **We cannot run the eval harness** (no `tmux`, no `codex` CLI, `evals/` not cloned) — and upstream demands eval evidence for behaviour-shaping skill content. Structural; affects every skills PR we will ever open. | **High** |
-| [#1982](https://github.com/obra/superpowers/pull/1982) touches tuned content (adds a Red Flags bullet) with zero evals. Disclosed, with an offer to drop it — but it's on the close-on-sight list. | High |
+| **We cannot run the eval harness** (no `tmux`, no `codex` CLI, `evals/` not cloned) — upstream demands eval evidence for behaviour-shaping skill content. Structural; affects every skills PR we will ever open, and it just cost us a real piece of #1982. **Fixing this is the highest-leverage thing available to us.** | **High** |
+| ~~#1982 touches tuned content with zero evals~~ — **RESOLVED 2026-07-13.** Dropped the Red Flags bullet proactively, citing his own rule. The PR now touches **no tuned content at all**; the release rule survives in the workflow steps. Cost: SDD's final-reviewer release is now a forward obligation with no ledger backstop. | ~~High~~ → none |
 | Four PRs open from an account with no merge history. Each justified; collectively it still *looks* like volume. | Medium |
 | **Zero maintainer contact.** Every judgment about what obra wants is inferred from his writing, not from him. | Medium |
 
