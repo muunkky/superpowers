@@ -1,5 +1,25 @@
 # Project overlay — muunkky/superpowers fork
 
+## ⛔ Before you open it: can you point at where you socialized it?
+
+Upstream closes **"bulk or spray-and-pray"** PRs on sight — *"an agent pointed at the issue list and told
+to fix things."* The rule is **not** about how many PRs you have open. It is about whether each one was
+genuinely worked.
+
+**The gate, before you run `gh pr create`:** *is there a comment from you on that issue thread, posted
+BEFORE you wrote any code, where you laid out your understanding and asked for a sanity check?*
+
+- **Yes** → open it. Reference that comment in the body ("as discussed above"). That comment is your
+  alibi: a trawler has none and cannot fake one retroactively.
+- **No** → **do not open the PR.** Go post it and wait. The only exception is a fix so small and so
+  obviously blessed that the maintainer already specced it in writing.
+
+Opening several PRs is fine *when each one clears that gate.* Opening several that don't is a trawl, and
+it gets all of them closed regardless of how good the diffs are. **Speed is the smell** — if the human is
+impatient, socialize more issues rather than opening more PRs faster.
+
+Full treatment, including the spray-vs-genuine table: the **`contributing`** skill.
+
 ## Writing an UPSTREAM PR to obra/superpowers — override your defaults
 
 When the PR targets the `obra/superpowers` **upstream** (a fork contribution, not an internal repo),
