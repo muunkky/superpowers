@@ -49,20 +49,61 @@ the fork first is what gives you the artifacts to reference and lets you make th
 — or walk away cleanly from a duplicate. (Real case: #1957 — we published the full fork showcase, then the
 right upstream move turned out to be a light comment, not a PR, because #1964 landed the same fix first.)
 
-## Know how PRs actually die here — it is not what you think
+## Know how PRs actually die here — measured, not guessed
 
-**76% of decided PRs are closed unmerged** (416 closed / 131 merged, 2026-07-13). Before you write a line,
-know what actually kills them. This is from reading obra's closing comments, not from guessing:
+**84.5% of decided PRs are closed unmerged** (714 closed / 131 merged). **43% are closed with no comment at
+all** — silence is the *modal* rejection. And of the 131 merges, **89 are obra + arittr**; only **42 are
+genuinely external.**
 
-| What kills PRs | His words |
-|---|---|
-| **A claim that doesn't survive a check against the tree** — *by far the most common* | *"premise is stale: none of the skill bodies #1883 names contain `TodoWrite`, `Task(`…"* (#1906) |
-| **Tuned content changed without eval evidence** | *"this deletes the `using-superpowers` Red Flags table… per CLAUDE.md that tuned content needs real adversarial eval evidence to change"* (#1882) |
-| **Blank or partial template** | *"the PR template is entirely blank — same as prior #1034 and #1060… three attempts over three months with no fields ever filled in"* (#1937) |
-| **Internal contradiction with the file's own rules** | the added text *"permits parallel implementer dispatch while that same file's Red Flags still say 'Never: Dispatch multiple implementation subagents in parallel'"* (#1944) |
-| **Bundled / fork-specific / rebranding** | 108 files of unrelated concerns (#1937) |
-| **Wrong base branch** | *"please retarget to dev, not main"* (#1911) |
-| **Batch** | see below — real, but rarer than the above |
+**The shape that reliably lands:** those 42 external merges are **median 6 lines, median 1 file** (33/42
+single-file, 31/42 ≤20 lines), a demonstrable bug, targeting `dev`, from an account not doing anything else
+that week. Closed PRs are median **133 lines / 3 files**. **Small and boring wins. Big and clever dies.**
+
+### Merit is evaluated, then overridden
+
+**10 of the 28 AI-triage closures were correct code, closed anyway** (36%). In their words:
+
+> *"The link fix itself is correct… **so this is being closed for the batch pattern, not the diff.**"* (#1907)
+> *"Under our contribution policy that's **a close regardless of whether the diff happens to be correct.**"* (#1109)
+> *"**The problem isn't the code.** The problem is how it arrived."* (#1910)
+
+The triage checks the **diff** against the tree, and *separately* checks the **submission** — template,
+disclosure, batch pattern, and the honesty of every claim in the body. **Failing the second kills you even
+when you pass the first.**
+
+### The three genuine disqualifiers — fatal on their own, regardless of merit
+
+1. **Batch / spray-and-pray.** Sole cause in #1904 and #1907 — clean, correct, mergeable, closed anyway.
+2. **Any false statement in the PR body or thread.** They verify it. They caught a "human reviewer" named
+   `msh01` **that is not a real GitHub account**. They catch ticked boxes the diff contradicts, and stray
+   syntax errors. **A sentence the repo state falsifies is fatal** — this is the category that kills.
+3. **Venue** — domain-specific, third-party dep, or "belongs in a plugin." Unfixable by editing the diff.
+
+### Survivable (never a sole cause)
+
+- **Wrong base branch** — 12 hits, **0 sole causes**: *"this targets `main` and we land on `dev`, but that's
+  just housekeeping, not why we're closing."* (#956) Fix it, don't panic.
+- **Merge conflicts / staleness** — explicitly forgiven: *"dev's history was recently rewritten, so please
+  don't read the CONFLICTING state… as anything you did wrong."* (#1937)
+
+### Ranked kill reasons (all 410 commented closures)
+
+| # | Reason | Count |
+|---|---|---:|
+| 1 | premise stale / doesn't reproduce | 61 |
+| 2 | duplicate / superseded | 51 |
+| 3 | batch / spray-and-pray | 35 |
+| 4 | tuned content changed w/o evals | 29 |
+| 5 | out of scope / belongs in a plugin | 29 |
+| 6 | template blank or partial | 23 |
+| 7 | "slop" (verbatim) | 22 |
+| 8 | missing disclosure | 19 |
+| 9 | wrong base branch · fabricated human-review claim | 12 · 12 |
+
+### Closures are appealable
+
+Every closure ends: *"If any of the evidence above is wrong, reply here — **Jesse reads these, and closures
+can be revisited.**"* A close is not terminal. If they got a fact wrong, say so, with evidence.
 
 ### The reviewer is an adversarial agent that tests every claim
 
