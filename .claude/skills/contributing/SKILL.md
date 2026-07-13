@@ -112,6 +112,12 @@ thing shown killing an otherwise-perfect PR by itself: #1904 was *"cleanly merge
 **Do instead:** one submission at a time. If you have several ready, ship the one cheapest to verify and
 hold the rest. Impatience → socialize more issues, not open more PRs.
 
+**Your defence is the thread, and it must pre-date the code.** A comment where you laid out the problem and
+asked for a sanity check *before writing anything* is the one thing a trawler cannot retrofit — GitHub
+timestamps it, and producing ten of them across ten issues *is* the work they skipped. **That is why
+socialize-before-you-build is not etiquette. It is your alibi.** No prior comment on the thread → don't open
+the PR.
+
 ### ❌ 5. Misattributed causation — it's not their bug
 
 Six closures. Superpowers is a pile of prompt files; the bug was in OpenCode, Codex, Gemini CLI,
@@ -171,6 +177,20 @@ test) · **#1939** (exec-form hook command). **Mine the graveyard before the iss
 
 Of 131 merges, 89 are obra + arittr. Only **42 are genuinely external** — **median 6 lines, 1 file.**
 Closed PRs: median 133 lines, 3 files. **Small and boring wins.**
+
+### Silence is not rejection
+
+**43% of closures carry no comment at all**, and closures arrive in **waves** after a triage run. Quiet
+means *not yet triaged*. Don't read it as a verdict — and expect all your open PRs to be judged in one pass.
+
+### A close is not terminal — and the footer tells you which verdict you got
+
+Closures end: *"If any of the evidence above is wrong, reply here — **Jesse reads these, and closures can be
+revisited.**"* If they got a fact wrong, say so with evidence.
+
+**But that footer appears on exactly 16 of 42 — and all 16 are venue or not-our-defect calls. Zero
+fault-track closures carry it.** If you are closed and the footer is *absent*, they think you did something
+wrong, not that you filed in the wrong place. Read the footer before you decide whether to argue.
 
 ## The sequence — how a good contributor lands a change
 
