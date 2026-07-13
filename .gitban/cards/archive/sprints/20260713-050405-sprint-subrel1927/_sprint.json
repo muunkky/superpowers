@@ -1,0 +1,26 @@
+{
+  "sprint_id": "20260713-050405-sprint-subrel1927",
+  "sprint_name": "SUBREL1927",
+  "sprint_folder": "20260713-050405-sprint-subrel1927",
+  "created_at": "2026-07-13T05:04:05.411418",
+  "start_date": null,
+  "end_date": "2026-07-13",
+  "archived_at": "2026-07-13T05:04:05.411418",
+  "card_ids": [
+    "6lu6av",
+    "2myrzj"
+  ],
+  "metrics": {
+    "total_cards": 2,
+    "by_priority": {
+      "P0": 2
+    },
+    "by_type": {
+      "documentation": 1,
+      "chore": 1
+    },
+    "by_handle": {
+      "Unassigned": 2
+    }
+  }
+}
