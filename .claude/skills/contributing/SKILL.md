@@ -50,114 +50,72 @@ the fork first is what gives you the artifacts to reference and lets you make th
 — or walk away cleanly from a duplicate. (Real case: #1957 — we published the full fork showcase, then the
 right upstream move turned out to be a light comment, not a PR, because #1964 landed the same fix first.)
 
-## Know how PRs actually die here — measured, not guessed
+## Know how PRs actually die here
 
-**84.5% of decided PRs are closed unmerged** (714 closed / 131 merged). **43% are closed with no comment at
-all** — silence is the *modal* rejection. And of the 131 merges, **89 are obra + arittr**; only **42 are
-genuinely external.**
+> **The evidence is a report, not this skill.** All 42 AI-triage closures are hand-coded in
+> **[`docs/reports/obra-triage-analysis.md`](../../../docs/reports/obra-triage-analysis.md)** — every PR,
+> its author, its size, the primary reason, whether the code was conceded correct, and every retry
+> invitation quoted. **Read it before a contentious call.** What follows is only the operating summary.
 
-**The shape that reliably lands:** those 42 external merges are **median 6 lines, median 1 file** (33/42
-single-file, 31/42 ≤20 lines), a demonstrable bug, targeting `dev`, from an account not doing anything else
-that week. Closed PRs are median **133 lines / 3 files**. **Small and boring wins. Big and clever dies.**
+**84.5% of decided PRs are closed unmerged** (714 / 131). Of the 131 merges, 89 are obra + arittr — only
+**42 are genuinely external**, and those are **median 6 lines, 1 file**. Closed PRs: median 133 lines,
+3 files. **Small and boring wins.**
 
-### Merit is evaluated, then overridden
+### A correct diff is not sufficient, and it isn't close
 
-**10 of the 28 AI-triage closures were correct code, closed anyway** (36%). In their words:
+Four closures **concede the code is right and close anyway** (#1904, #1907, #1910, #1109):
 
-> *"The link fix itself is correct… **so this is being closed for the batch pattern, not the diff.**"* (#1907)
-> *"Under our contribution policy that's **a close regardless of whether the diff happens to be correct.**"* (#1109)
+> *"it's cleanly mergeable right now… The reason this is closing is separate."* (#1904)
 > *"**The problem isn't the code.** The problem is how it arrived."* (#1910)
 
-The triage checks the **diff** against the tree, and *separately* checks the **submission** — template,
-disclosure, batch pattern, and the honesty of every claim in the body. **Failing the second kills you even
-when you pass the first.**
+The triage checks the **diff** against the tree, then *separately* checks the **submission**. Failing the
+second kills you even when you pass the first.
 
-### The genuine disqualifiers — fatal on their own, regardless of merit
+### The two sole-sufficient killers
 
-1. **Any false statement in the PR body or thread.** They *verify* it. They caught a "human reviewer" named
-   `msh01` by checking whether the GitHub account existed — **it didn't**. They catch ticked boxes the diff
-   contradicts, and stray syntax errors. **A sentence the repo state falsifies is fatal.** This is the
-   category that kills, and it's the one you're most likely to hand them by accident.
-2. **Venue** — domain-specific, third-party dep, or "belongs in a plugin." Unfixable by editing the diff.
-3. **Batch / spray-and-pray** — real, but **far rarer and far more specific than it looks.** See below.
+1. **Batch.** 9 of 42 primaries. It is the **only** thing shown killing an otherwise-perfect PR by itself.
+   Three incidents: 12 PRs / 6h on `pr-factory/issue-N` branches; 10 PRs / **34 seconds**; one cross-repo
+   drive-by. **One submission at a time.**
+2. **Any false statement in the submission.** They *execute* your claims: ran the cited `npx` command at
+   the cited version (#1781), diffed your PR against your own prior rejected one **by blob hash** (#1166),
+   **looked up your named human reviewer on GitHub and found no such account** (#1901/#1906), opened the
+   file you added and found it empty while your boxes claimed a human reviewed it (#1925).
+   **Never write a sentence you have not verified in the last hour.**
 
-### What "batch" ACTUALLY means — don't panic-match on timestamps
+### Check VENUE first — it's the biggest bucket and it's decided before your code is read
 
-**Only THREE batch incidents exist in the entire repo history.** Nine closures reference the rule, and they
-resolve to these:
+**10 of 42.** Third-party dependency or domain-specific → standalone plugin, every time. A good skill in
+the wrong repo is a wasted week.
 
-| Incident | Scale | The real tells |
-|---|---|---|
-| tianma-if (#1901–#1910) | **10 PRs in 34 seconds** | Fabricated reviewer `msh01` (account doesn't exist); unrelated subsystems |
-| stablegenius49 (#627–#640) | **12 PRs in six hours** | Branches named **`pr-factory/issue-<N>-*`** — one per open issue, trawled from the tracker. Template **entirely blank**: no disclosure, no human-review box, no evaluation. Targeted `main`. |
-| #1596 | part of a spray | — |
+### Noise — do not panic about these
 
-**The rule catches a machine trawling the issue list** — which is what obra's own words say: *"an agent
-pointed at the issue list and told to fix things."* The tells are **10–12 PRs, one per issue, blank
-templates, fabricated or missing reviewer, no prior engagement on any thread.** A `pr-factory/issue-N`
-branch name is the pattern confessing.
+- **`main` vs `dev`:** 16 of 28 PRs targeted `main`. **Never the reason.** *"that's just housekeeping, not
+  why we're closing"* (#956). Fix it; don't believe it killed anyone.
+- **Merge conflicts / staleness:** explicitly excused when it's obra's own history rewrite (#1937).
 
-**Several well-socialized PRs, each with a complete template and a real reviewer, is not that.** Do not
-over-correct.
+### Tuned content: they know the SHA that added it
 
-> **We got this wrong and it cost us.** We opened 4 PRs in 23 minutes, pattern-matched on the timestamps
-> alone, panicked, and self-closed three. The panic then produced a **false statement on the thread** ("the
-> other three stay closed until this one resolves") that we falsified four minutes later by reopening them.
-> **We manufactured a genuinely fatal disqualifier (#1) while fleeing a risk we didn't actually have (#3).**
-> Check what the rule catches before you act on it.
+3 primaries + 7 secondaries. **Git archaeology is routine** — they will name the commit your change reverts
+(#1168/`3f725ff`, #1882/`f6ee98a`, #1906/`e7ddc25`). Never touch Red Flags tables, trigger descriptions, or
+"1% chance" language without evals.
 
-### Survivable (never a sole cause)
+### "By inspection" is a confession
 
-- **Wrong base branch** — 12 hits, **0 sole causes**: *"this targets `main` and we land on `dev`, but that's
-  just housekeeping, not why we're closing."* (#956) Fix it, don't panic.
-- **Merge conflicts / staleness** — explicitly forgiven: *"dev's history was recently rewritten, so please
-  don't read the CONFLICTING state… as anything you did wrong."* (#1937)
+#1797 died because the reporter answered *"did you hit this?"* with *"By inspection"* — the triage then ran
+it live 3× and it didn't happen. **Bring a transcript or don't file.**
 
-### Ranked kill reasons — ⚠️ REGEX-TAGGED, NOT VERIFIED
+### Free, pre-approved work is sitting there
 
-**Treat these as a rough prior, not fact.** They come from pattern-matching 410 closure comments, and
-pattern-matching over-counts: the regex reported "batch: 35" when the truth is **three incidents** (many
-closures merely *reference* the rule). Verify before you act on any row.
+**33 of 42 closures carry a retry invitation** — quoted verbatim in the report. Several are confirmed-real
+bugs with a maintainer-written spec and an explicit *"would be welcome"*, unclaimed because the original
+submitter burned the PR: **#1901** (TZ=UTC on archive creation), **#1910** (worktree `.git`-is-a-file),
+**#1902** (antigravity test), **#1939** (exec-form hook command). **Mine the graveyard first.**
 
-| # | Reason | Count |
-|---|---|---:|
-| 1 | premise stale / doesn't reproduce | 61 |
-| 2 | duplicate / superseded | 51 |
-| 3 | batch / spray-and-pray | 35 |
-| 4 | tuned content changed w/o evals | 29 |
-| 5 | out of scope / belongs in a plugin | 29 |
-| 6 | template blank or partial | 23 |
-| 7 | "slop" (verbatim) | 22 |
-| 8 | missing disclosure | 19 |
-| 9 | wrong base branch · fabricated human-review claim | 12 · 12 |
+### The footer tells you which track you're on
 
-### Closures are appealable
-
-Every closure ends: *"If any of the evidence above is wrong, reply here — **Jesse reads these, and closures
-can be revisited.**"* A close is not terminal. If they got a fact wrong, say so, with evidence.
-
-### The reviewer is an adversarial agent that tests every claim
-
-obra, closing #1903, describing how he triages:
-
-> *"Jesse had me run a skeptical triage of all 340 open superpowers items — **every factual claim tested
-> against the current `dev` tree, then adversarially re-checked by a second, independent agent** — and he
-> reviewed the verdicts and directed this batch of closures."*
-
-**What follows from that, and it should govern every word you write upstream:**
-
-1. **Never put a claim in a PR body that a script cannot confirm.** Line counts, grep results, "this test
-   is red on `dev`", `--numstat` output, source citations — all of it will be re-run. *This is why we
-   replaced a word count (wrong for three revisions running) with a `git diff --numstat` triple, and why we
-   killed a false "#1934 only deletes" sentence before it shipped.* An unverifiable or wrong number is the
-   cheapest possible kill.
-2. **Honest limits are safe. Overclaims are fatal.** A verifier cannot punish *"I ran zero evals, here's
-   why."* It trivially punishes *"tested adversarially"* when nothing was. **Leave the box unticked.**
-3. **Check your addition against the file's own Red Flags before you submit.** #1944 died because its new
-   text permitted what the same file's Red Flags forbade. Grep the file you touched for rules your prose
-   now contradicts.
-4. **Silence means "not yet triaged," not "rejected."** Closures arrive in *waves* after a triage run.
-   Don't read quiet as a verdict — and expect all your open PRs to be judged in the same pass.
+*"closures can be revisited"* appears on **exactly 16 of 42 — all of them venue or not-our-defect calls.
+Zero fault-track closures carry it.** If you get closed and the footer is absent, they think you did
+something wrong, not that you filed in the wrong place.
 
 ## ⛔ Multiple PRs are fine. A *batch* is not. Know the difference — it is not the count.
 
