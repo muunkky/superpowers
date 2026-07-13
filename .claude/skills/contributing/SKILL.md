@@ -47,6 +47,44 @@ the fork first is what gives you the artifacts to reference and lets you make th
 — or walk away cleanly from a duplicate. (Real case: #1957 — we published the full fork showcase, then the
 right upstream move turned out to be a light comment, not a PR, because #1964 landed the same fix first.)
 
+## Know how PRs actually die here — it is not what you think
+
+**76% of decided PRs are closed unmerged** (416 closed / 131 merged, 2026-07-13). Before you write a line,
+know what actually kills them. This is from reading obra's closing comments, not from guessing:
+
+| What kills PRs | His words |
+|---|---|
+| **A claim that doesn't survive a check against the tree** — *by far the most common* | *"premise is stale: none of the skill bodies #1883 names contain `TodoWrite`, `Task(`…"* (#1906) |
+| **Tuned content changed without eval evidence** | *"this deletes the `using-superpowers` Red Flags table… per CLAUDE.md that tuned content needs real adversarial eval evidence to change"* (#1882) |
+| **Blank or partial template** | *"the PR template is entirely blank — same as prior #1034 and #1060… three attempts over three months with no fields ever filled in"* (#1937) |
+| **Internal contradiction with the file's own rules** | the added text *"permits parallel implementer dispatch while that same file's Red Flags still say 'Never: Dispatch multiple implementation subagents in parallel'"* (#1944) |
+| **Bundled / fork-specific / rebranding** | 108 files of unrelated concerns (#1937) |
+| **Wrong base branch** | *"please retarget to dev, not main"* (#1911) |
+| **Batch** | see below — real, but rarer than the above |
+
+### The reviewer is an adversarial agent that tests every claim
+
+obra, closing #1903, describing how he triages:
+
+> *"Jesse had me run a skeptical triage of all 340 open superpowers items — **every factual claim tested
+> against the current `dev` tree, then adversarially re-checked by a second, independent agent** — and he
+> reviewed the verdicts and directed this batch of closures."*
+
+**What follows from that, and it should govern every word you write upstream:**
+
+1. **Never put a claim in a PR body that a script cannot confirm.** Line counts, grep results, "this test
+   is red on `dev`", `--numstat` output, source citations — all of it will be re-run. *This is why we
+   replaced a word count (wrong for three revisions running) with a `git diff --numstat` triple, and why we
+   killed a false "#1934 only deletes" sentence before it shipped.* An unverifiable or wrong number is the
+   cheapest possible kill.
+2. **Honest limits are safe. Overclaims are fatal.** A verifier cannot punish *"I ran zero evals, here's
+   why."* It trivially punishes *"tested adversarially"* when nothing was. **Leave the box unticked.**
+3. **Check your addition against the file's own Red Flags before you submit.** #1944 died because its new
+   text permitted what the same file's Red Flags forbade. Grep the file you touched for rules your prose
+   now contradicts.
+4. **Silence means "not yet triaged," not "rejected."** Closures arrive in *waves* after a triage run.
+   Don't read quiet as a verdict — and expect all your open PRs to be judged in the same pass.
+
 ## ⛔ Multiple PRs are fine. A *batch* is not. Know the difference — it is not the count.
 
 Upstream closes "bulk or spray-and-pray" PRs on sight:

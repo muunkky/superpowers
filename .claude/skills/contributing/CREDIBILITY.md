@@ -28,10 +28,25 @@ sentence, in their words. Everything else, summarize freely.
 | Maintainer (@obra) responses to us | **0** |
 | PRs closed/rejected by upstream | **0** |
 
-**Baseline — calibrate against this before reading anything into silence:** ~178 open PRs; ~6 merged in the
-first half of July. **At ~3% movement, silence is the default state, not a rejection.**
+**Baseline — calibrate against this before reading anything into silence** (measured 2026-07-13):
+
+| | |
+|---|---:|
+| Merged, all time | 131 |
+| Closed **unmerged** | 416 |
+| **Rejection rate on decided PRs** | **76%** |
+| Currently open | 178 |
+| Merged in the first half of July | 6 |
+
+Closures arrive in **waves** after a triage run, so silence means *not yet triaged*, not *rejected* — and
+our four open PRs will likely be judged in the same pass.
 
 ---
+
+> **This file is STATE, not guidance.** It records what happened and where we stand. The *lessons* — how
+> obra triages, what actually kills PRs here, how to write so a verifier can't touch you — live in
+> [`SKILL.md`](SKILL.md), because those shape what you do and must be read every time. Don't put
+> instructions here; nobody opens a scoreboard to learn the rules.
 
 ## 🔴 Negative
 
