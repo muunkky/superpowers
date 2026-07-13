@@ -47,6 +47,37 @@ the fork first is what gives you the artifacts to reference and lets you make th
 — or walk away cleanly from a duplicate. (Real case: #1957 — we published the full fork showcase, then the
 right upstream move turned out to be a light comment, not a PR, because #1964 landed the same fix first.)
 
+## ⛔ ONE OPEN PR AT A TIME. This rule outranks everything below.
+
+**Never have more than one PR open upstream at once. Never open a second until the first is merged,
+closed, or has been reviewed.** No exceptions for "but they're each good," no exceptions for "the user
+is in a hurry."
+
+Upstream's `CLAUDE.md` is explicit, and it is close-on-sight **regardless of individual merit**:
+
+> **Bulk or spray-and-pray PRs.** Do not trawl the issue tracker and open PRs for multiple issues in a
+> single session… PRs that are part of an obvious batch — where an agent was pointed at the issue list
+> and told to "fix things" — will be closed. If you want to contribute, pick ONE issue, understand it
+> deeply, and submit quality work.
+
+This is judged **on the timestamps**, not on the quality of the diffs. obra closed #1903 with:
+*"it's #1903 of ten you opened between 04:19:42 and 04:20:16 UTC… one every 3–4 seconds, spanning
+unrelated subsystems."*
+
+**We did this ourselves on 2026-07-13** — four PRs (#1982–#1985) in **22 minutes**, across four
+unrelated subsystems, on the same day we quoted that very rule back at another contributor. Every one
+of them was individually solid, deeply researched, honestly disclosed. It would not have mattered.
+We caught it before a maintainer did and self-closed three, keeping one — which is the *recovery*, not
+an excuse to repeat it.
+
+**Why speed is the trap:** the whole point of this playbook is to look like a careful person. A careful
+person does not open four PRs in twenty minutes. Being fast is *indistinguishable from being a bot*, and
+at this upstream that is the only signal that matters. **If the human is impatient, socialize more issues
+— do not open more PRs.** Queue the rest; land them one at a time.
+
+If you have several ready: pick the one that is cheapest for the maintainer to verify (a red test going
+green beats a nuanced prose change), land that, then submit the next.
+
 ## The sequence — how a good contributor lands a change
 
 The *order* matters as much as the work. At a 94%-rejection, anti-slop upstream you want to appear as a
