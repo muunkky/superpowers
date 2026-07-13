@@ -22,9 +22,9 @@ sentence, in their words. Everything else, summarize freely.
 |---|---:|
 | PRs merged (ours) | **0** |
 | Our work merged inside someone else's PR | **2 items** |
-| Public endorsements from contributors | **1** |
+| Public endorsements from contributors | **2** |
 | Citations of our work by others | **1** |
-| Defects we caught in others' PRs | **3** |
+| Defects we caught in others' PRs | **3** (2 confirmed acted on) |
 | Maintainer (@obra) responses to us | **0** |
 | PRs closed/rejected by upstream | **0** |
 
@@ -75,7 +75,7 @@ our four open PRs will likely be judged in the same pass.
 |---|---|---|
 | 2026-07-13 | **@aznikline folded both our contributions into their PR and thanked us publicly** — operator docs + injection test. Our `dev`-vs-`main` flag also fixed their base branch. *"really nice writeup… I folded both of your bits straight into #1964 (appreciate you offering them as a follow-up rather than competing)"* | [#1964](https://github.com/obra/superpowers/pull/1964#issuecomment-4954024338) |
 | 2026-07-13 | **@Lady-Lin cites #1927 twice as closest prior art** when filing a related Codex-lifecycle issue. Their finding (a controller *inferring* `BLOCKED` from a `wait_agent` timeout and killing a healthy child) independently validates why our release rule is status-blind. | [#1979](https://github.com/obra/superpowers/issues/1979) |
-| 2026-07-13 | Caught a **test-breaking regression** in an open PR (reproduced 13/0 → 12/1), plus it duplicated obra's own [#1805](https://github.com/obra/superpowers/pull/1805) and targeted `main`. No reply yet. | [#1976](https://github.com/obra/superpowers/pull/1976#issuecomment-4956175497) |
+| 2026-07-13 | **@vladsoltan adopted ALL THREE points of our review.** *"Thanks for the detailed review. I've addressed all three points"* — dropped the `server.cjs` hunk we proved broke a test, aligned with obra's own #1805 that we spotted it duplicated, and retargeted `main` → `dev`. **Our review reshaped their PR.** | [#1976](https://github.com/obra/superpowers/pull/1976) |
 | 2026-07-13 | Caught a **hunk gone stale** when #1959 merged — would have deleted a working import. No reply yet. | [#1899](https://github.com/obra/superpowers/pull/1899#issuecomment-4956260273) |
 
 ---
@@ -97,11 +97,11 @@ All socialized on their issue threads before any code was written.
 
 | Play | Attempts | Result |
 |---|---:|---|
-| **Additive review on someone else's PR** | 3 | **1 acceptance + public thanks, 0 rejections** |
+| **Additive review on someone else's PR** | 3 | **2 confirmed acceptances + public thanks, 0 rejections** |
 | **Mining the maintainer's own closing comments for what he'd accept** | 3 | Sourced 3 of our 4 PRs. Unproven until reviewed. |
 | **Our own PRs** | 4 | 0 reviewed. In a pile of 178. |
 
-**The read:** standing is being built in *other people's threads*, not ours. At 3% merge rate with an
+**The read:** standing is being built in *other people's threads*, not ours — and it is now 2-for-3 there while 0-for-4 on our own PRs. At 3% merge rate with an
 underwater maintainer, improving someone else's PR is cheap to accept and hard to dismiss. Keep opening our
 own PRs — the process is sound — but **helping on other people's PRs is the engine.**
 

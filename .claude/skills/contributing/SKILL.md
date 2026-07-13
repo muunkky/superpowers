@@ -374,6 +374,40 @@ git push origin showcase/<slug>
 
 Cross-link: the showcase → the upstream PR + the issue; the upstream PR → the showcase.
 
+## "Check for comments" — sweep every thread we've touched
+
+When the user says **"check for comments"**, *"anything new upstream?"*, *"did obra reply?"*, *"what's the
+state of our PRs?"* — or at the start of any upstream work — run:
+
+```bash
+.claude/skills/contributing/check-upstream.sh          # new activity since the last sweep
+.claude/skills/contributing/check-upstream.sh --all    # every thread we've touched + its state
+```
+
+It flags maintainer comments with `⚑ MAINTAINER` and surfaces **PR reviews** separately, because a review
+is not an issue comment and is trivially missed.
+
+**The thread list is DERIVED from GitHub, never hand-maintained.** A manifest we had to remember to update
+would drift, and the sweep would then report *"nothing new"* while silently skipping a thread — the same
+class of bug as a stale overlay. GitHub already knows every issue and PR we've authored or commented on;
+that *is* the manifest. The only state kept is a last-checked timestamp.
+
+> **This bit is load-bearing:** `gh search issues` **does not return pull requests.** The first version of
+> this script queried only issues, reported 4 threads, and silently omitted all four of our own PRs *and*
+> every PR we'd reviewed. It now queries `issues` **and** `prs`, for both `--author` and `--commenter`. If
+> you change the query, verify the count against `--all` — a sweep that quietly misses threads is worse
+> than no sweep, because you'll trust it.
+
+**Then triage each hit — reply / record / ignore:**
+
+- **A maintainer response** → highest priority. Answer it, and log it in `CREDIBILITY.md` (it's our
+  scarcest signal, positive or negative).
+- **Someone acted on our review** → log it. *This is the play that's working: 2 of our 3 additive reviews
+  have been adopted.* (Its first run found one we'd missed entirely — @vladsoltan had adopted all three of
+  our points on #1976 and we didn't know.)
+- **A close or criticism** → log it, with their operative sentence quoted.
+- **Routine chatter** → don't log it. The ledger is signals, not a log.
+
 ## The credibility ledger — read it first, update it last
 
 **[`CREDIBILITY.md`](CREDIBILITY.md) (in this skill's directory) is the scoreboard for this entire
