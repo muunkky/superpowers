@@ -67,7 +67,7 @@ our four open PRs will likely be judged in the same pass.
 
 | Risk | Severity |
 |---|---|
-| **We cannot run the eval harness** (no `tmux`, no `codex` CLI, `evals/` not cloned) — upstream demands eval evidence for behaviour-shaping skill content. Structural; affects every skills PR we will ever open, and it just cost us a real piece of #1982. **Fixing this is the highest-leverage thing available to us.** | **High** |
+| ~~We cannot run the eval harness~~ — **HALF-FIXED 2026-07-13.** `tmux` installed; `superpowers-evals` (Quorum) cloned to `evals/`, deps installed, **1849 tests pass**, `quorum check` green. **Remaining blocker: live evals need `ANTHROPIC_API_KEY`, which is not in this environment** (quorum does not use the `claude` CLI's own auth). Set the key and we can produce before/after eval evidence — which unblocks *every* skills PR and would have saved #1982's Red Flags bullet. Relevant scenarios already exist: `codex-subagent-wait-mapping`, `subagent-dispatch-no-overtrigger`. | **High → blocked on one env var** |
 | ~~#1982 touches tuned content with zero evals~~ — **RESOLVED 2026-07-13.** Dropped the Red Flags bullet proactively, citing his own rule. The PR now touches **no tuned content at all**; the release rule survives in the workflow steps. Cost: SDD's final-reviewer release is now a forward obligation with no ledger backstop. | ~~High~~ → none |
 | Four PRs open from an account with no merge history. Each justified; collectively it still *looks* like volume. | Medium |
 | **Zero maintainer contact.** Every judgment about what obra wants is inferred from his writing, not from him. | Medium |
