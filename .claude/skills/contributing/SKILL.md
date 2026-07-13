@@ -8,11 +8,11 @@ description: >
   the maintainer; file an issue; push a branch; sync the fork; build a fork showcase; or decide
   whether to engage with an issue at all. Also load it when the user says "push this up", "open
   the PR", "contribute this", "send it to obra", "comment on that issue", "help on their PR",
-  "should we take this one?", or asks how the local→fork→upstream split works. It carries the SEVEN
+  "should we take this one?", or asks how the local→fork→upstream split works. It carries the EIGHT
   ANTI-PATTERNS that actually get PRs closed there (84.5% are) — assertion instead of execution;
   amnesia about why the code is that way; fabricated attestation (they look up your named reviewer
   and check whether the account exists); volume over care; blaming superpowers for another tool's
-  bug; venue blindness; and sounding like a bot. The triage is a groundedness detector, not a code
+  bug; venue blindness; sounding like a bot; and NOISE (comments about you, not their code). The triage is a groundedness detector, not a code
   review — a correct diff does not save you. Also: socialize-before-you-build; the one-line
   disclosure; the clean code-only branch off `dev`; keeping gitban artifacts and `.claude/` on the
   fork only; and the credibility ledger. Pairs with `gitban-pr`, which writes the PR body.
