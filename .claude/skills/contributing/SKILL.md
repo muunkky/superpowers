@@ -8,14 +8,14 @@ description: >
   the maintainer; file an issue; push a branch; sync the fork; build a fork showcase; or decide
   whether to engage with an issue at all. Also load it when the user says "push this up", "open
   the PR", "contribute this", "send it to obra", "comment on that issue", "help on their PR",
-  "should we take this one?", or asks how the local→fork→upstream split works. It carries: how
-  PRs actually die here (84.5% closed unmerged; the fatal disqualifier is any false statement in
-  the body — they verify it — while "batch" is far rarer and more specific than it looks);
-  socialize-before-you-build and why that comment is your alibi; write-like-a-person (AI-sounding
-  text gets closed regardless of merit); the one-line
-  disclosure; deriving a clean code-only branch targeted at `dev`; keeping every gitban artifact
-  and all `.claude/` tooling on the fork only; and the credibility ledger (CREDIBILITY.md) that
-  tracks what is actually working. Pairs with `gitban-pr`, which writes the PR body itself.
+  "should we take this one?", or asks how the local→fork→upstream split works. It carries the SEVEN
+  ANTI-PATTERNS that actually get PRs closed there (84.5% are) — assertion instead of execution;
+  amnesia about why the code is that way; fabricated attestation (they look up your named reviewer
+  and check whether the account exists); volume over care; blaming superpowers for another tool's
+  bug; venue blindness; and sounding like a bot. The triage is a groundedness detector, not a code
+  review — a correct diff does not save you. Also: socialize-before-you-build; the one-line
+  disclosure; the clean code-only branch off `dev`; keeping gitban artifacts and `.claude/` on the
+  fork only; and the credibility ledger. Pairs with `gitban-pr`, which writes the PR body.
 ---
 
 # Contributing — local → fork → upstream
@@ -50,118 +50,127 @@ the fork first is what gives you the artifacts to reference and lets you make th
 — or walk away cleanly from a duplicate. (Real case: #1957 — we published the full fork showcase, then the
 right upstream move turned out to be a light comment, not a PR, because #1964 landed the same fix first.)
 
-## Know how PRs actually die here
+## Anti-patterns — what actually gets you closed
 
-> **The evidence is a report, not this skill.** All 42 AI-triage closures are hand-coded in
-> **[`docs/reports/obra-triage-analysis.md`](../../../docs/reports/obra-triage-analysis.md)** — every PR,
-> its author, its size, the primary reason, whether the code was conceded correct, and every retry
-> invitation quoted. **Read it before a contentious call.** What follows is only the operating summary.
+**The triage is not a code reviewer. It is a groundedness detector.** They do not ask "is this code good."
+They ask "did a mind touch this, or is it an artifact shaped like a contribution." That is why a *correct
+diff does not save you* — four closures concede the code is right and close anyway (#1904, #1907, #1910,
+#1109).
 
-**84.5% of decided PRs are closed unmerged** (714 / 131). Of the 131 merges, 89 are obra + arittr — only
-**42 are genuinely external**, and those are **median 6 lines, 1 file**. Closed PRs: median 133 lines,
-3 files. **Small and boring wins.**
+Evidence for every row: [`docs/reports/obra-triage-analysis.md`](../../../docs/reports/obra-triage-analysis.md)
+(all 42 triage closures, hand-coded).
 
-### A correct diff is not sufficient, and it isn't close
+---
 
-Four closures **concede the code is right and close anyway** (#1904, #1907, #1910, #1109):
+### ❌ 1. Assertion in place of execution
 
-> *"it's cleanly mergeable right now… The reason this is closing is separate."* (#1904)
-> *"**The problem isn't the code.** The problem is how it arrived."* (#1910)
+You reasoned about the code instead of running it.
 
-The triage checks the **diff** against the tree, then *separately* checks the **submission**. Failing the
-second kills you even when you pass the first.
+> #1797 died on the words **"By inspection."** The triage then ran it live 3× and the failure never happened.
+> #1781: they **ran the exact `npx` command at the exact version you cited.** The claim didn't hold.
+> #1801: they **gave a fresh Sonnet agent your text across 3 independent sessions.** It did the right thing.
 
-### The two sole-sufficient killers
+**Do instead:** run it, then quote the command and the output. "Reproduced on pristine `dev` @ `<sha>`:
+`<command>` → `<output>`." Never write a sentence you have not executed in the last hour.
 
-1. **Batch.** 9 of 42 primaries. It is the **only** thing shown killing an otherwise-perfect PR by itself.
-   Three incidents: 12 PRs / 6h on `pr-factory/issue-N` branches; 10 PRs / **34 seconds**; one cross-repo
-   drive-by. **One submission at a time.**
-2. **Any false statement in the submission.** They *execute* your claims: ran the cited `npx` command at
-   the cited version (#1781), diffed your PR against your own prior rejected one **by blob hash** (#1166),
-   **looked up your named human reviewer on GitHub and found no such account** (#1901/#1906), opened the
-   file you added and found it empty while your boxes claimed a human reviewed it (#1925).
-   **Never write a sentence you have not verified in the last hour.**
+### ❌ 2. Amnesia about intent — you didn't ask why the code is like that
 
-### Check VENUE first — it's the biggest bucket and it's decided before your code is read
+You "fixed" something that was deliberately done. **They git-blame every change and name the commit.**
 
-**10 of 42.** Third-party dependency or domain-specific → standalone plugin, every time. A good skill in
-the wrong repo is a wasted week.
+> #1168 reverts `3f725ff` ("Strengthen brainstorming skill trigger") — a *deliberate, named fix*.
+> #1882 deletes Red Flags added by `f6ee98a` **specifically to harden the skill against rationalization**.
+> #1903/#1906 re-add rows `e7ddc25` pruned **nine days earlier** ("restate guidance modern agents already follow").
 
-### Noise — do not panic about these
+**Do instead:** `git log -S'<the thing you're changing>'` before you touch it. If a commit deliberately
+removed it, you are not fixing a bug — you are reverting a decision, and you need evals to do that.
 
-- **`main` vs `dev`:** 16 of 28 PRs targeted `main`. **Never the reason.** *"that's just housekeeping, not
-  why we're closing"* (#956). Fix it; don't believe it killed anyone.
-- **Merge conflicts / staleness:** explicitly excused when it's obra's own history rewrite (#1937).
+### ❌ 3. Fabricated attestation — a claim the repo state contradicts
 
-### Tuned content: they know the SHA that added it
+**The single most fatal thing you can do.** They *check*.
 
-3 primaries + 7 secondaries. **Git archaeology is routine** — they will name the commit your change reverts
-(#1168/`3f725ff`, #1882/`f6ee98a`, #1906/`e7ddc25`). Never touch Red Flags tables, trigger descriptions, or
-"1% chance" language without evals.
+> #1906: the PR named `msh01` as the human reviewer. **They looked it up. No such GitHub account exists.**
+> #1109: the "independent verification" came from an account whose **only two actions in the entire repo**
+> were confirming that issue and reviewing that PR — **posted at the exact same second.**
+> #1925: **they opened the file you added. It was empty.** Both "human reviewed the complete diff" and
+> "reviewed existing PRs" were ticked.
+> #1166: **diffed by blob hash** against your own PR closed 8 hours earlier. Byte-identical — while your
+> "Existing PRs" section claimed none were found.
 
-### "By inspection" is a confession
+**Do instead:** name a real human with a real account. Leave a box **unticked** rather than tick it falsely
+— an unticked box with a reason has never killed a PR; a false tick is sole-sufficient. And **anything you
+say on the thread is part of the submission**: if you promise something and then do otherwise, correct it
+in public before they find it.
 
-#1797 died because the reporter answered *"did you hit this?"* with *"By inspection"* — the triage then ran
-it live 3× and it didn't happen. **Bring a transcript or don't file.**
+### ❌ 4. Volume over care
 
-### Free, pre-approved work is sitting there
+> 12 PRs in six hours on branches literally named **`pr-factory/issue-<N>-*`** (#627–640).
+> 10 PRs in **34 seconds** (#1901–#1910).
 
-**33 of 42 closures carry a retry invitation** — quoted verbatim in the report. Several are confirmed-real
-bugs with a maintainer-written spec and an explicit *"would be welcome"*, unclaimed because the original
-submitter burned the PR: **#1901** (TZ=UTC on archive creation), **#1910** (worktree `.git`-is-a-file),
-**#1902** (antigravity test), **#1939** (exec-form hook command). **Mine the graveyard first.**
+The blank templates and fake reviewers are *downstream* of this, not separate charges. It is the **only**
+thing shown killing an otherwise-perfect PR by itself: #1904 was *"cleanly mergeable right now"* — closed.
 
-### The footer tells you which track you're on
+**Do instead:** one submission at a time. If you have several ready, ship the one cheapest to verify and
+hold the rest. Impatience → socialize more issues, not open more PRs.
 
-*"closures can be revisited"* appears on **exactly 16 of 42 — all of them venue or not-our-defect calls.
-Zero fault-track closures carry it.** If you get closed and the footer is absent, they think you did
-something wrong, not that you filed in the wrong place.
+### ❌ 5. Misattributed causation — it's not their bug
 
-## ⛔ Multiple PRs are fine. A *batch* is not. Know the difference — it is not the count.
+Six closures. Superpowers is a pile of prompt files; the bug was in OpenCode, Codex, Gemini CLI,
+Antigravity, or Claude Code itself. (#968, #1099, #1143, #1569, #1817, #1950)
 
-Upstream closes "bulk or spray-and-pray" PRs on sight:
+**Do instead:** disable superpowers and check whether the symptom survives. If it does, it isn't theirs.
 
-> **Bulk or spray-and-pray PRs.** Do not trawl the issue tracker and open PRs for multiple issues in a
-> single session… PRs that are part of an obvious batch — where an agent was pointed at the issue list
-> and told to "fix things" — will be closed. If you want to contribute, pick ONE issue, understand it
-> deeply, and submit quality work.
+### ❌ 6. Venue blindness — right work, wrong repo
 
-**Read what that rule is actually policing.** It is not "two PRs is one too many." It is *an agent pointed
-at the issue list and told to fix things* — no understanding, no prior engagement, no human in the loop.
-The tells obra actually cited when he closed #1903: *"#1903 of ten you opened between 04:19:42 and
-04:20:16 UTC, one every 3–4 seconds, spanning unrelated subsystems, each with the identical 'Human
-partner who reviewed this diff: msh01' claim. No one reviewed ten independent cross-cutting diffs in 34
-seconds."* **The diffs weren't the problem. The absence of any real work behind them was.**
+**The largest single bucket: 10 of 42.** Decided *before your code is read*. Third-party dependency or
+domain-specific → standalone plugin, every time.
 
-So the question is never *how many*. It is: **can you prove each one was genuinely worked?**
+**Do instead:** ask "would this help someone on a completely different project?" before you write a line.
+A good skill in the wrong repo is a wasted week.
 
-| Spray-and-pray | Genuine parallel work |
+### ❌ 7. Sounding like a bot
+
+The repo's own word for it is **slop**, and it's 22 hits in the corpus. The smell is what they act on.
+
+- **Never narrate your own process.** "Four adversarial review rounds", "the PRD and design each went
+  through a review pass" — nobody cares how your harness works. Say what is true about **their** code.
+- **Never bold half the sentence.** Heavy `**bold**`, em-dash pileups, nested bullets = LLM house style.
+- **Never structure a comment like a document.** A comment is a message to a person.
+- **Never write long.** More than a few short paragraphs is showing off.
+- **Never describe what gitban does.** The plugins row names it with a link. That is the entire disclosure.
+
+**Do instead:** plain prose, one idea per sentence, short.
+
+---
+
+### The tells that mark you as ungrounded
+
+| Tell | Why it kills |
 |---|---|
-| Trawled from the issue list | Each issue chosen for a reason you can state |
-| PR is the first anyone hears of it | **Socialized on its own issue thread first**, before code |
-| Opened seconds apart, no engagement | Each has a thread where you asked, waited, and adjusted |
-| Same boilerplate human-reviewer claim | A human actually read each diff |
-| Unrelated subsystems, no thread to point at | Maintainer's own words backing it, where they exist |
+| "By inspection" / "this could cause" / "my review agent flagged" | No contact with reality. #1797. |
+| A number a script can't confirm | They re-run every factual claim. |
+| A named reviewer | **They look up the account.** |
+| A ticked box | They open the file and check. #1925. |
+| "No existing PRs found" | They search — including *your own*. #1166. |
+| Several PRs at once | The pattern is the charge. #1904. |
 
-**The evidence is what separates you, and you must be able to point at it.** If a maintainer glances at
-your PR list and wonders, the first thing that saves you is a link to the issue comment where you raised
-it *before* you wrote a line — where you asked for a sanity check and waited. A trawler has no such
-comment, and cannot fake one after the fact. **That is why Stage 2 (socialize before you build) is not
-etiquette — it is your alibi.**
+### Noise — do NOT panic about these
 
-**What we learned the hard way (2026-07-13).** We opened four PRs in 22 minutes (#1982–#1985), panicked
-about the timestamps, and self-closed three. That was an over-correction: every one had been socialized on
-its own issue days or hours earlier, three were fixes obra had *personally specced or invited* in closing
-comments, and a human had reviewed each diff. They were reopened, each carrying a note pointing at the
-thread where it started. **Don't withdraw genuinely-worked contributions on a technicality — but do make
-the work visible, because from the outside good work and a spray look identical until someone clicks.**
+- **`main` vs `dev`:** 16 of 28 PRs targeted `main`. **Never the reason.** *"just housekeeping, not why
+  we're closing"* (#956).
+- **Merge conflicts:** excused when it's obra's own history rewrite (#1937).
+- **Being an AI:** he triages with one himself, and says so. Disclose it and move on.
 
-**Still true, and still the safer default:**
-- **If you can't point at prior engagement on the thread, you don't get to open the PR.** Go socialize it.
-- **Don't open several at once when they're all speculative or unasked-for.** That *is* a trawl.
-- **Speed is the smell.** If a human is impatient, socialize more issues — don't open more PRs faster.
-- **When in doubt, lead with the one cheapest for the maintainer to verify** (a red test going green beats
-  a nuanced prose change), and let it earn the read for the rest.
+### Where the free work is
+
+**33 of 42 closures carry a retry invitation.** Several are confirmed-real bugs with a maintainer-written
+spec and an explicit *"would be welcome"* — unclaimed, because the original submitter burned their PR:
+**#1901** (TZ=UTC on archive creation) · **#1910** (worktree `.git`-is-a-file) · **#1902** (antigravity
+test) · **#1939** (exec-form hook command). **Mine the graveyard before the issue tracker.**
+
+### What lands
+
+Of 131 merges, 89 are obra + arittr. Only **42 are genuinely external** — **median 6 lines, 1 file.**
+Closed PRs: median 133 lines, 3 files. **Small and boring wins.**
 
 ## The sequence — how a good contributor lands a change
 
@@ -280,29 +289,6 @@ git push origin main
 If `--ff-only` refuses, your fork's main has diverged (usually because tooling/artifacts were
 committed to it) — rebase or reconcile deliberately rather than force-merging.
 
-## Write like a person — the #1 way this fails
-
-**The maintainer's trust is the scarce resource, and AI-sounding text burns it faster than a bad patch.**
-A comment that reads as machine-generated gets the contribution closed on sight regardless of merit. This
-upstream closes "slop" as a matter of policy; the *smell* is what they act on, not the substance.
-
-**Never do these — each is a loud, unmistakable AI tell:**
-
-- **Never narrate your own process.** Nobody cares that "the design went through four adversarial review
-  rounds," that "the PRD and design each went through an adversarial review pass," or that "it was that
-  review that killed my option (a)." This is meta about *our* harness. It is self-indulgent, it is
-  transparently machine-written, and it is the single most annoying thing you can put in someone else's
-  thread. **Say what is true about THEIR code. Never about your workflow.** If a template section
-  explicitly asks how you tested, answer it in one plain sentence about the *code* — not a tour of the
-  lifecycle.
-- **Never bold half the sentence.** Heavy `**bold**`, em-dash pileups, and nested bullet hierarchies are
-  LLM house style, not human writing. Plain prose. One idea per sentence.
-- **Never structure a comment like a document** — headers, tables, decision records — unless the content
-  truly demands it. A comment is a message to a person, not a deliverable.
-- **Never write long.** More than a few short paragraphs means you are showing off.
-- **Never say "Produced with gitban … driving the roadmap → PRD → design → ADR → sprint lifecycle."**
-  That is advertising, not disclosure. It goes nowhere, ever.
-
 ## The disclosure — one line, identical every time
 
 obra requires model + harness + plugins. Naming the plugin is mandatory — so **gitban gets named, with its
@@ -364,31 +350,20 @@ upstream thread should read as a thoughtful person, never an AI dump.
 
 ## Opening the upstream PR
 
-> **⛔ The PR body is written by the `gitban-pr` skill — load it. Never hand-roll a PR body.**
-> These two are a pair: **this** skill decides *whether and how to engage*; **`gitban-pr`**'s
-> `SKILL.local.md` overlay owns *the body* — obra's template verbatim, target `dev`, the disclosure table,
-> no process narration, and the "every claim gets machine-tested" rules. Hand-rolling it is how we shipped
-> a disclosure that read as an advertisement and a word count wrong by 36%.
+> **⛔ The body is written by the `gitban-pr` skill. Never hand-roll it.** Its `SKILL.local.md` overlay owns
+> the template, the disclosure table, and the no-narration rules.
 
-The one part that is **this** skill's job — **derive a fresh, clean branch. Never push your working branch**
-(it may carry force-added artifacts or messy history):
+**This** skill owns one thing — derive a clean branch. Never push your working branch:
 
 ```bash
 git fetch upstream
 git checkout -b fix/<slug> upstream/dev
 git checkout <work-branch> -- <the changed code files>   # only the real files
 git commit                                               # no attribution footer
-git diff --stat upstream/dev                             # verify: exactly the change, nothing else
+git diff --stat upstream/dev                             # exactly the change, nothing else
 ```
 
-Open as a **draft**; a human reviews the complete diff; then mark it ready — a draft PR is not a request
-for review, and leaving it there means doing all the work and never actually asking.
-
-## The PR-body disclosure
-
-Owned by the **`gitban-pr`** overlay: fill obra's template table, name gitban with its link in the plugins
-row, and add nothing else — no prose paragraph, no description of what gitban does. See *The disclosure*
-above for the comment form.
+Open as a draft, human reviews the full diff, **then mark it ready** — a draft is not a request for review.
 
 ## Building the fork showcase (public, one branch per contribution)
 
