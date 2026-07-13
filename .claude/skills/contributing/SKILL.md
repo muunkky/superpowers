@@ -357,6 +357,24 @@ git push origin showcase/<slug>
 
 Cross-link: the showcase → the upstream PR + the issue; the upstream PR → the showcase.
 
+## The credibility ledger — read it first, update it last
+
+**[`CREDIBILITY.md`](CREDIBILITY.md) (in this skill's directory) is the scoreboard for this entire
+strategy.** Read it **before** you engage upstream — it tells you what has actually worked, who has
+responded to us, and what our standing is. Update it **after** every upstream interaction.
+
+It exists because the bet we are making is falsifiable: *being visibly the best contributor in the room
+compounds — people cite you, take your review notes, and eventually the maintainer reads your PR with a
+prior that it's worth his time.* That either happens or it doesn't, and the only way to know is to write
+down what other people actually did.
+
+**Log a row only when someone else did something because of what we did** — a citation, an endorsement, our
+code taken, a defect acted on, a close with its stated reason. **Never log volume** (PRs opened, docs
+written, lines changed): that's an input, not a signal, and a ledger full of it is a mood board.
+
+**Log the bad rows too.** Silence at a repo with ~178 open PRs and ~3% movement is *data about the repo*,
+not a verdict on us — and you can only tell the difference if you wrote down the baseline.
+
 ## Keep a record — the log + the roadmap
 
 Every upstream interaction is recorded in **two** places, so nothing is lost and the roadmap stays the map:
