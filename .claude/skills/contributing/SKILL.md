@@ -1,18 +1,20 @@
 ---
 name: contributing
 description: >
-  This project's playbook for moving changes from the local working tree → the
-  muunkky/superpowers fork → the obra/superpowers upstream. Use this skill WHENEVER you are
-  about to open or prepare a pull request upstream, push a branch, sync the fork with upstream,
-  decide what belongs on the fork versus upstream, build or update a fork "showcase", set up the
-  repo on a new machine, comment on an upstream issue, or when the user says things like "push
-  this up", "open the PR", "contribute this", "send it to obra", "showcase the process", "sync
-  the fork", or asks how the local→fork→upstream split works. It captures the hard-won rules:
-  derive a clean, code-only branch targeted at `dev`; keep every gitban lifecycle artifact
-  (PRDs, ADRs, design docs, decks, cards, roadmap) and all `.claude/` tooling on the fork only;
-  include the mandatory authoring-environment disclosure (which is NOT the banned vanity kind);
-  mirror the upstream issue on the fork and stay judicious on upstream threads; never push to
-  upstream directly; and never touch the pristine tracked root CLAUDE.md.
+  REQUIRED for ANY interaction with the obra/superpowers upstream — this repo is a fork, and
+  every outward-facing action goes through this playbook. Load it BEFORE you: post or edit ANY
+  upstream comment (on an issue OR on someone else's PR — the additive review is our
+  highest-value play); open, close, reopen, retarget, or update a PR; reply to a review or to
+  the maintainer; file an issue; push a branch; sync the fork; build a fork showcase; or decide
+  whether to engage with an issue at all. Also load it when the user says "push this up", "open
+  the PR", "contribute this", "send it to obra", "comment on that issue", "help on their PR",
+  "should we take this one?", or asks how the local→fork→upstream split works. It carries: how
+  PRs actually die here (76% are closed unmerged, and the top killer is a claim that does not
+  survive a check against the tree); socialize-before-you-build and why that comment is your
+  alibi; write-like-a-person (AI-sounding text gets closed regardless of merit); the one-line
+  disclosure; deriving a clean code-only branch targeted at `dev`; keeping every gitban artifact
+  and all `.claude/` tooling on the fork only; and the credibility ledger (CREDIBILITY.md) that
+  tracks what is actually working. Pairs with `gitban-pr`, which writes the PR body itself.
 ---
 
 # Contributing — local → fork → upstream
@@ -330,64 +332,33 @@ upstream thread should read as a thoughtful person, never an AI dump.
   gitban does. Skip it only for a trivial one-liner comment.
 - **Cross-link both ways:** fork issue / showcase ↔ upstream PR ↔ upstream issue.
 
-## Opening the upstream PR (obra/superpowers)
+## Opening the upstream PR
 
 > **⛔ The PR body is written by the `gitban-pr` skill — load it. Never hand-roll a PR body.**
-> These two skills are a pair: **this** one decides *whether and how to engage* (read the room, socialize
-> first, derive the clean branch, what actually kills PRs here); **`gitban-pr`** writes *the body itself*,
-> and its `SKILL.local.md` overlay carries the upstream-specific overrides (fill obra's template verbatim,
-> target `dev`, disclosure table only, no process narration).
-> Hand-rolling the body is how we shipped a disclosure that read as a gitban advertisement and a word count
-> that was wrong by 36%. Load both, every time.
+> These two are a pair: **this** skill decides *whether and how to engage*; **`gitban-pr`**'s
+> `SKILL.local.md` overlay owns *the body* — obra's template verbatim, target `dev`, the disclosure table,
+> no process narration, and the "every claim gets machine-tested" rules. Hand-rolling it is how we shipped
+> a disclosure that read as an advertisement and a word count wrong by 36%.
 
-`obra/superpowers` has a ~94% rejection rate and closes slop on sight. Full rules: the **tracked root
-`CLAUDE.md`** + `.github/PULL_REQUEST_TEMPLATE.md`. The load-bearing ones:
+The one part that is **this** skill's job — **derive a fresh, clean branch. Never push your working branch**
+(it may carry force-added artifacts or messy history):
 
-1. **Derive a fresh, clean branch — never push your working/sprint branch** (it may carry force-added
-   artifacts, deck commits, or messy history). Slice only the code onto a clean branch off the right base:
-   ```bash
-   git fetch upstream
-   git checkout -b fix/<slug> upstream/dev
-   git checkout <work-branch> -- <the changed code files>   # only the real files
-   git commit                                               # clean message, no attribution footer
-   git diff --stat upstream/dev                             # verify: exactly the change, nothing else
-   ```
-2. **Target `dev`, never `main`.**
-3. **One problem per PR.** No bundled/unrelated changes, no scope creep, no speculative fixes. Solve a
-   real, reproducible problem — ideally a filed issue you can point to.
-4. **Search open AND closed PRs first**; cite what you found and why yours differs.
-5. **Complete the PR template** — every section, real answers, no placeholders.
-6. **A human reviews the complete diff** before submission.
-7. **No new third-party dependencies**; no reformat/"compliance" edits to tuned skill content without eval evidence.
-8. **Include the authoring disclosure** (see next section) — mandatory.
-9. **Link the fork showcase** once (transparency + it advertises gitban), but lead with the fix and the
-   problem, not the machinery.
+```bash
+git fetch upstream
+git checkout -b fix/<slug> upstream/dev
+git checkout <work-branch> -- <the changed code files>   # only the real files
+git commit                                               # no attribution footer
+git diff --stat upstream/dev                             # verify: exactly the change, nothing else
+```
 
-Open it as a **draft** first; show the human the full diff + PR body before it goes out.
+Open as a **draft**; a human reviews the complete diff; then mark it ready — a draft PR is not a request
+for review, and leaving it there means doing all the work and never actually asking.
 
-## The PR-body disclosure — fill obra's table, add nothing
+## The PR-body disclosure
 
-Two rules meet here and look like they conflict. They don't.
-
-**Vanity attribution — banned everywhere.** `Co-Authored-By: Claude <noreply@anthropic.com>`, or
-`🤖 Generated with [Claude Code](…)`. Strip it from commits and PR text.
-
-**Obra's required disclosure — fill his template's table. That is the whole disclosure.** He names the
-fields; answer them as fact:
-
-| Field | Value (re-verify each session) |
-|---|---|
-| Your model + version | Claude Opus 4.8 (`claude-opus-4-8`), 1M context |
-| Harness + version | Claude Code `<version>` (`claude --version`) |
-| All plugins installed | gitban (muunkky.github.io/gitban-site); enumerate any others loaded this session |
-| Human partner who reviewed this diff | the human who actually read the diff |
-
-**Do NOT add a prose disclosure paragraph above or below that table.** No "produced with an autonomous
-development harness", no "driving the full roadmap → PRD → design → ADR → sprint lifecycle". The plugins
-row already names gitban and links it — that is the disclosure, and it is all the visibility gitban gets.
-A sentence describing what gitban *does* is an advertisement, and it is the loudest AI tell in the document.
-
-See *The disclosure* above for the comment form (one line, identical every time).
+Owned by the **`gitban-pr`** overlay: fill obra's template table, name gitban with its link in the plugins
+row, and add nothing else — no prose paragraph, no description of what gitban does. See *The disclosure*
+above for the comment form.
 
 ## Building the fork showcase (public, one branch per contribution)
 
