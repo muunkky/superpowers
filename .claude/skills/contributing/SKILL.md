@@ -148,6 +148,64 @@ correction we posted today was itself noise, written by the same context that pr
 correcting. A reviewer with no memory of writing it is the only one who can tell you the paragraph you are
 proudest of is the one that gets you closed.
 
+## The theory — read this ONCE and the eight anti-patterns below stop needing to be memorised
+
+Everything he does is downstream of one situation: **a maintainer buried under machine-generated
+submissions that look right and aren't.** So he is not reviewing your code. **He is running a cheap
+falsification test on a single question: did a mind make contact with reality here?**
+
+Every rule below is an instance of that. Eight symptoms, one disease.
+
+**1. Correct code does not save you.** #1904 was *"cleanly mergeable right now"* and was closed anyway; so
+were #1907, #1910, #1109. Code correctness is not evidence that a mind was engaged — an agent produces
+correct code by accident all the time. Stop optimising for "is my diff right." It's necessary and it is
+nowhere near sufficient.
+
+**2. Every sentence you write is a claim, and he RUNS it.** Not reads — runs. *"By inspection"* → he ran
+it live 3× and the failure never happened (#1797). A named human reviewer → **he looked up the account**
+(#1906, `msh01`, no such user). A ticked box → **he opened the file; it was empty** (#1925). *"No existing
+PRs found"* → he searched, and found **your own**, byte-identical, closed 8 hours earlier (#1166).
+→ *Never write a sentence you have not executed in the last hour. An unticked box with a reason has never
+killed a PR. A false tick is sole-sufficient and fatal regardless of merit.*
+
+**3. Depth is DEMANDED. Complexity is PUNISHED. They are different axes, and confusing them is the mistake
+everyone makes — including this file, until 2026-07-14.** He closed #1797 for *too little* thought and #668
+for *too much apparatus* (a JSON registry, a CLI manager, a GC daemon, LaunchAgents — where a config option
+would do). He re-runs claims across three independent sessions; his own PRs run to +2,045 lines. There is no
+economy-of-effort argument to make to this man.
+→ *Deliberate as hard as the problem deserves; ship the smallest thing that solves it. **A big diff is
+evidence you have not finished thinking.** Median merge here: 6 lines, 1 file.*
+
+**4. The artifact of thought is NOT evidence of thought. Ship the residue, not the deliberation.** A PRD, an
+ADR, a design doc — these are precisely what an agent generates by the yard. He cannot falsify them, so they
+carry no weight: **0 of the 42 external merges linked one.** What *proves* thought is its checkable residue —
+the commit you `git log -S`'d, his own closing comment quoted back at him, a command with its real output, an
+eval with transcripts, the alternative you rejected and the reason. **Deliberate in private; submit only what
+he can re-run.**
+
+**5. The code is the way it is ON PURPOSE.** #1168 reverted a deliberate, named fix. #1903 and #1906 re-added
+rows `e7ddc25` had pruned nine days earlier. #1882 deleted hardening that was added specifically to prevent
+rationalization. **He git-blames every change and names the commit.**
+→ *`git log -S'<the thing>'` before you touch it. If a commit removed it deliberately, you are not fixing a
+bug — you are reversing a decision, and that requires evals, not opinions.*
+
+**6. Before any of that: is it his problem, in his repo?** Venue is the single largest closure bucket (10 of
+42) and it is decided *before your code is read*. Not-our-defect is 6 more — the bug was in Codex, OpenCode,
+Gemini CLI, Claude Code. *Disable superpowers; if the symptom survives, it isn't his.*
+
+**7. Engagement is per-PR, and it must be timestamped.** The count is not the crime — **measured: multi-PR
+authors merge at the same per-PR rate as single-PR authors (3.7% vs 3.2%).** The *trawl* is the crime, and
+its tell is that nobody ever engaged: both closed batches had **zero prior comments on every issue they
+touched.** A comment on the issue that pre-dates your code is the one thing a trawler cannot retrofit, because
+GitHub timestamps it.
+
+**8. Silence is the baseline, not a verdict.** 84% of decided PRs are closed; 43% of closures carry no word
+from him; 176 are open right now. **Quiet means untriaged.** Do not read it, do not chase it, do not let it
+push you into volume.
+
+> **If you remember one line:** *he is not asking whether your change is good. He is asking whether you are
+> real. Answer that, in evidence he can re-run himself, and ship the smallest thing that works.*
+
 ## Anti-patterns — what actually gets you closed
 
 **The triage is not a code reviewer. It is a groundedness detector.** They do not ask "is this code good."
