@@ -28,15 +28,18 @@ sentence, in their words. Everything else, summarize freely.
 | Maintainer (@obra) responses to us | **0** |
 | PRs closed/rejected by upstream | **0** |
 
-**Baseline — calibrate against this before reading anything into silence** (measured 2026-07-13):
+**Baseline — calibrate against this before reading anything into silence.**
+**Measured 2026-07-14. These are the ONLY measured numbers in this skill — nothing else restates them.**
+Re-measure if older than ~3 months; the queue drifts (131→134 merges in one day).
 
 | | |
 |---|---:|
-| Merged, all time | 131 |
+| Merged, all time | 134 |
 | Closed **unmerged** | 714 |
-| **Rejection rate on decided PRs** | **84.5%** |
-| Closed with **NO comment at all** | **304 (43%)** — silence is the *modal* rejection |
-| Of the 131 merges, by obra + arittr | 89 — only **42 genuinely external** |
+| **Rejection rate on decided PRs** | **84.2%** |
+| Closed with **no comment from obra** | **304 (43%)** — silence is the *modal* rejection |
+| Closed with *literally* zero comments from anyone | **114 (16%)** |
+| Of the 134 merges, by obra + arittr | 92 — only **42 genuinely external** |
 | Median external merge | **6 lines, 1 file** |
 | Median closed PR | 133 lines, 3 files |
 

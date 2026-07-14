@@ -518,7 +518,7 @@ what keeps a PR both clean and acceptable to a strict upstream:
   |---|---|
   | Your model + version | The model you are actually running, with its exact ID (e.g. a `[1m]` suffix is part of the ID) |
   | Harness + version | `claude --version` |
-  | All plugins installed | `jq -r '.enabledPlugins \| keys[]' ~/.claude/settings.json` — **ALL of them.** Name gitban with its link (muunkky.github.io/gitban-site). A plugin that played no part in the work is still *installed*: **enumerate, don't curate.** Never write "no others" — it is a checkable claim |
+  | All plugins installed | Run: `python3 -c "import json;print(*json.load(open('$HOME/.claude/settings.json'))['enabledPlugins'],sep=chr(10))"` (**not** `jq` — it is not installed here) — **ALL of them.** Name gitban with its link (muunkky.github.io/gitban-site). A plugin that played no part in the work is still *installed*: **enumerate, don't curate.** Never write "no others" — it is a checkable claim |
   | Human partner who reviewed this diff | **The name and @handle of the human who actually read this diff, in this session.** They look the account up. Never pre-fill it, never inherit it from an example, never name someone who did not read it. If no human has read the diff yet, **the PR is not ready to open** |
 
   **Verify the table before you open the PR — don't trust this paragraph:**

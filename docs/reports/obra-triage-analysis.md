@@ -121,12 +121,32 @@ explicitly denied causal weight. This is the tell people misread.
 **Move 6 — A retry invitation with a concrete spec, or the revisitable footer, or both.**
 
 The footer — *"If you think this call is wrong, reply here — Jesse reads these, and closures can be
-revisited."* — appears on exactly **16 of 42** (string-checked): #597, #683, #730, #937, #968,
-#1007, #1099, #1143, #1243, #1569, #1574, #1671, #1817, #1913, #1940, #1944.
+revisited."*
 
-**Every one of those 16 is a venue call or a not-our-defect call. Zero closures alleging batching,
-fabrication, false statements, reverted tuning, or non-reproduction carry it.** The footer is the
-soft-track marker. (Two soft-track closures lack it: #956 and #1950.)
+> ### ⚠️ CORRECTION (2026-07-14) — this section was WRONG, and it is instructive
+>
+> This report previously claimed the footer *"appears on exactly **16 of 42**"* and that **"every one of
+> those 16 is a venue call… Zero closures alleging batching, fabrication, [or] false statements carry
+> it"** — concluding the footer was a **soft-track marker**, and that its *absence* meant the maintainer
+> thought you had cheated. **All of that is false.**
+>
+> **The footer is boilerplate on every triage closure.** Re-checked against live GitHub, it is present on
+> the integrity kills too — #1906 (the fabricated `msh01` reviewer), #1925 (the empty file), #1166 (the
+> byte-identical duplicate) — and on all 15 closures sampled across every track:
+>
+> ```bash
+> gh api repos/obra/superpowers/issues/1906/comments --jq '.[].body' | grep -c "Jesse reads these"   # 1
+> ```
+>
+> **How the error happened, which is the whole lesson:** the original "string check" grepped for a
+> *misquoted* version of the footer (*"If any of the evidence above is wrong…"* — the real text is *"If you
+> think this call is wrong…"*). The misquote matched only a subset, and that arbitrary subset was then
+> rationalized into a signal, complete with a track theory and an exception list. **One unverified
+> quotation became a confident, actionable, entirely fictional rule** — and it propagated into `SKILL.md`,
+> where it would have told us to argue a closure we deserved.
+>
+> **The footer carries no information. Decide whether to argue a closure on the evidence, not on the
+> footer.**
 
 ---
 

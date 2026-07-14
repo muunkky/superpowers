@@ -85,8 +85,9 @@ The fork and the upstream are **not symmetric**, and the whole workflow falls ou
 
 **So: always run the fork pipeline; then decide the upstream move — up to and including "don't."** Running
 the fork first is what gives you the artifacts to reference and lets you make the upstream call from strength
-— or walk away cleanly from a duplicate. (Real case: #1957 — we published the full fork showcase, then the
-right upstream move turned out to be a light comment, not a PR, because #1964 landed the same fix first.)
+— or walk away cleanly from a duplicate. (Real case: #1957 — we published the full fork showcase, then the right upstream move turned out to be a
+light comment on someone else's PR rather than one of our own, because #1964 got there first with the same
+fix. Our two additions were folded into #1964 and thanked for publicly.)
 
 ## ⛔ NEVER POST DIRECTLY. Draft → preflight → verify → post.
 
@@ -261,7 +262,7 @@ A good skill in the wrong repo is a wasted week.
 
 ### ❌ 7. Sounding like a bot
 
-The repo's own word for it is **slop**, and it's 22 hits in the corpus. The smell is what they act on.
+The repo's own word for it is **slop** — obra's `CLAUDE.md` says *"This pull request is slop that's made of lies."* The smell is what they act on.
 
 - **Never narrate your own process.** "Four adversarial review rounds", "the PRD and design each went
   through a review pass" — nobody cares how your harness works. Say what is true about **their** code.
@@ -328,7 +329,9 @@ content in a PR.**
 
 ```bash
 # two trees, identical except your change
-git archive upstream/dev | tar -x -C A/ ; git archive <your-branch> | tar -x -C B/
+mkdir -p A B                       # tar will NOT create these for you
+git archive upstream/dev  | tar -x -C A/
+git archive <your-branch> | tar -x -C B/
 
 # same prompt, fresh headless agent, N reps per arm, no hint what you're testing
 claude -p "<a realistic task where the rule should fire>" --plugin-dir A/ --dangerously-skip-permissions
@@ -375,21 +378,32 @@ Closed PRs: median 133 lines, 3 files. **Small and boring wins.**
 
 ### Silence is not rejection
 
-**43% of closures carry no comment at all**, and closures arrive in **waves** after a triage run. Quiet
+**In 43% of closures obra never says a word** (304 of 714 — he closes without commenting; 114 carry *literally* zero comments from anyone). Closures arrive in **waves** after a triage run. Quiet
 means *not yet triaged*. Don't read it as a verdict — and expect all your open PRs to be judged in one pass.
 
 ### A close is not terminal — and the footer tells you which verdict you got
 
-Closures end: *"If any of the evidence above is wrong, reply here — **Jesse reads these, and closures can be
+Closures end: *"If you think this call is wrong, reply here — **Jesse reads these, and closures can be
 revisited.**"* If they got a fact wrong, say so with evidence.
 
-**But that footer appears on exactly 16 of 42 — and all 16 are venue or not-our-defect calls. Zero
-fault-track closures carry it.** If you are closed and the footer is *absent*, they think you did something
-wrong, not that you filed in the wrong place. Read the footer before you decide whether to argue.
+**The footer tells you NOTHING. It is boilerplate on every triage closure — 42 of 42, including the
+integrity kills** (#1906's fabricated reviewer, #1925's empty file, #1166's byte-identical duplicate all
+carry it). Verify before you believe otherwise:
+
+```bash
+gh api repos/obra/superpowers/issues/1906/comments --jq '.[].body' | grep -c "Jesse reads these"
+```
+
+*This file used to claim the footer appeared on only 16 of 42 and never on a fault-track closure — so its
+absence meant "they think you cheated." That was invented signal, and it survived here because nobody ran
+the grep. It is exactly the failure AP1 is about, committed by the document that teaches AP1.*
+
+**So decide whether to argue on the evidence, not on the footer.** If they got a fact wrong, say so and
+show the command. If they got it right, take the close.
 
 ## The sequence — how a good contributor lands a change
 
-The *order* matters as much as the work. At an 84.5%-rejection, anti-slop upstream you want to appear as a
+The *order* matters as much as the work. At a heavily-rejecting, anti-slop upstream (see CREDIBILITY's Baseline) you want to appear as a
 person **thinking out loud and checking in**, then deliver a **clean, pre-discussed PR** — never a cold
 monolith dropped from nowhere. So you socialize the **plan** before you build, and the fork publishes in
 **two waves** (planning artifacts early, code + decks after). Sections below detail each step.
@@ -439,9 +453,9 @@ contribution), and the fork mirror issue (the narrative). **Cross-link all three
 - Confirm remotes before contributing: `origin → muunkky/superpowers`, `upstream → obra/superpowers`
   with its **push URL set to `DISABLED`** so a stray `git push upstream` can never hit the canonical
   repo. Never re-enable it.
-- The fork's default branch (`main`) tracks **`upstream/dev`** — that's obra's active integration
-  branch and where contributions land. (Flip to `upstream/main` only if you deliberately want the
-  released base; state which you chose.)
+- The fork's `main` tracks **`origin/main`** — it is OURS. It carries `.claude/` and has diverged from
+  `upstream/dev` permanently and on purpose (see *Keeping the fork in sync*). You build every contribution
+  branch off `upstream/dev` directly; `main` is never fast-forwarded onto it.
 
 ## New-machine / fork setup — FIRST COMMAND ON EVERY FRESH CLONE
 
@@ -523,8 +537,9 @@ model, the version and the plugin list, and it produced four PRs that named one 
 a harness version that had already moved.
 
 ```bash
-claude --version                                              # the harness version, right now
-jq -r '.enabledPlugins | keys[]' ~/.claude/settings.json      # EVERY enabled plugin, not just gitban
+claude --version    # the harness version, right now
+python3 -c "import json;print(*json.load(open('$HOME/.claude/settings.json'))['enabledPlugins'],sep='\n')"
+                    # EVERY enabled plugin, not just gitban. (Not jq — it is not installed here.)
 ```
 
 The model is whatever you actually are, with its **exact ID** — a `[1m]` suffix is part of the ID.

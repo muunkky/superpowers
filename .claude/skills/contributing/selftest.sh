@@ -110,6 +110,37 @@ if [ -f "$PRM" ] && [ -f "$PRT" ]; then
 fi
 
 # ─────────────────────────────────────────────────────────────────────────────
+grp "every command the skill prescribes actually exists"
+# The skill told you to read the plugin list with `jq`. jq is not installed here,
+# so the one command guarding the AP3 sole-sufficient kill silently did nothing.
+# A playbook that prescribes a tool you do not have is prose, not a control.
+for f in "$D/SKILL.md" .claude/skills/gitban-pr/SKILL.local.md; do
+  [ -f "$f" ] || continue
+  # only flag a bare `jq ...` invocation, not prose warning you off it
+  grep -oE '`jq -r|^jq |\| jq ' "$f" 2>/dev/null | grep -q . \
+    && bad "$(basename "$f") prescribes 'jq', which is NOT installed here" \
+    || ok "$(basename "$f") prescribes no missing tool"
+done
+for c in gh git python3 claude; do
+  command -v "$c" >/dev/null 2>&1 && ok "$c is available" || bad "$c is MISSING — the playbook depends on it"
+done
+
+# The eval rig is the thing that unblocks every skills PR. It must run as printed.
+grep -q 'mkdir -p A B' "$D/SKILL.md" \
+  && ok "the RED/GREEN eval rig creates its tree dirs (tar will not)" \
+  || bad "eval rig omits 'mkdir -p A B' — 'tar -x -C A/' fails with no such directory"
+
+grp "the sweep does not dirty the tree"
+# check-upstream writes WATCH.state on every run. If git tracks it, every sweep
+# leaves the tree dirty — and `git add -f <dir>` will happily force it past the
+# skill's own .gitignore, which is exactly how it got committed.
+if git ls-files --error-unmatch "$D/WATCH.state" >/dev/null 2>&1; then
+  bad "WATCH.state is TRACKED — every sweep dirties the tree (git rm --cached it)"
+else
+  ok "WATCH.state is not tracked"
+fi
+
+# ─────────────────────────────────────────────────────────────────────────────
 grp "identity is derived, never hardcoded"
 # A hardcoded account is a silent wrong-answer bug: run by anyone else the sweep
 # audits the wrong threads and still prints "clean".
