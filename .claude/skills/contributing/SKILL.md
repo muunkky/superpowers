@@ -20,6 +20,35 @@ description: >
 
 # Contributing — local → fork → upstream
 
+## ⭐ Why we are here at all — read this before anything else
+
+**The point of contributing to obra/superpowers is to use the gitban lifecycle to produce the best pull
+requests in the room.** Upstream is gitban's proving ground and its shop window. A merged PR is the
+scoreboard; **gitban is the thing being tested and shown.**
+
+That is not a slogan, it is an operating instruction, and it has three hard consequences:
+
+1. **The harness ALWAYS runs. You never hand-roll the work.** Card → `gitban-dispatcher` → `gitban-reviewer`
+   → `gitban-pr`. A contribution you typed out yourself proves nothing about gitban, tests nothing, and
+   showcases nothing — it is the one way to do this work that is guaranteed to be worthless *even if it
+   merges*. If you find yourself editing the fix by hand, you have already failed the actual objective.
+2. **Right-sizing governs WHAT LEAVES THE FORK — never what you do.** The thing you keep small is the
+   **upstream diff**. Everything the lifecycle produces — PRD, design doc, ADR, cards, decks — **stays on
+   the fork for traceability**, costs nothing upstream, and is never linked there. Obra closes people for
+   complicated *deliverables*, not for thinking; he cannot see your thinking. **Deliberate in full; ship
+   small.** Confusing these two axes is how you end up hand-rolling a card while telling yourself you are
+   being disciplined.
+3. **Every contribution is a live test of gitban, and its bugs are a PRIMARY output.** When the lifecycle
+   creaks on a real upstream job — a skill that misfires, a hook that blocks a legitimate command, an
+   artifact that leaks toward the wrong branch — that finding is worth as much as the PR. Capture it. Do not
+   route around it silently.
+
+**The two goals never fight, because they land in different places.** The fork carries the whole gitban
+story (cards, dispatch, review, decks, showcase branch); the upstream PR carries a tight, code-only diff
+with no trace of it. That is what *Two destinations, two postures* below is for. Running the full harness
+does **not** license a bigger diff — it is what makes the diff smaller and the PR better-grounded than
+anything else in obra's queue.
+
 ## Day one — do these in this order
 
 **A fresh clone is unsafe until step 1.** Do not skip it because the repo "looks fine": the guardrail that
@@ -529,23 +558,56 @@ show the command. If they got it right, take the close.
 
 ## ⚖️ Right-size the pipeline to the change — FIRST, before you run any of it
 
+> ### ⛔ "Right-size" governs WHAT LEAVES THE FORK. Never what you DO.
+>
+> **What you right-size:** the upstream **diff**, and **which artifacts you link or push upstream** (answer:
+> none — see *never link them to the PR*).
+>
+> **What ALWAYS runs, in full, at every size, with no exceptions:** the **gitban lifecycle** — roadmap →
+> PRD ⇄ review → design doc ⇄ review → ADR ⇄ review → sprint/card → `gitban-dispatcher` → `gitban-reviewer`
+> → `gitban-pr`. Sized to the work, yes; **skipped, never.** Every artifact it produces **stays on the
+> fork**, where it is free, invisible to obra, and exactly the traceability we want.
+>
+> **You never execute the card work yourself.** Producing the PR *through the lifecycle* is the entire
+> objective (see *Why we are here at all*) — a two-line fix you hand-rolled is a failure even when the two
+> lines are perfect, because it tested nothing and showcased nothing.
+>
+> **The distinction obra actually enforces:** he closed [#668](https://github.com/obra/superpowers/pull/668)
+> for a **complex shipped solution** — a JSON registry, a CLI manager, a GC daemon, LaunchAgents — *"a
+> massive amount of complexity for what should be a straightforward configuration option."* That is a verdict
+> on the **deliverable**. He has never seen anyone's planning docs and never will; they live on the fork.
+> **Deliberation is free upstream. Complexity in the diff is fatal.** So: deliberate in full, ship small.
+> This is the same rule as *Deep thought, simple solution* below — if you ever read this section as licence
+> to think less or to skip a lifecycle stage, you have misread it.
+>
+> **This misreading has happened.** On 2026-07-14 an agent read this section, concluded "no PRD for a 2-line
+> guard fix", and then silently hand-wrote the fix, the test, and the commit — skipping the dispatcher
+> entirely. It had this skill loaded and had read the gitban rules twice that session. The section was too
+> easy to read as permission. It isn't.
+
 **Measured on this fork, 2026-07-14: we shipped 20 added lines upstream and built 3,529 lines of apparatus
-to do it — 176:1. Of that, 1,494 lines were a PRD + design doc + ADR deliberating a NINE-LINE prose change.**
+to do it — 176:1.** Note what that number is and is not: it is a fact about the **fork**, which obra never
+sees. It is a problem *only* to the extent the apparatus inflated the diff or got linked upstream. It is
+**not** a reason to skip the lifecycle.
 
-That is the *exact* failure obra closes PRs for. He killed [#668](https://github.com/obra/superpowers/pull/668)
-with *"a massive amount of complexity for what should be a straightforward configuration option"* — and that
-author wasn't lazy, they were **taking the better long-term solution.** So are we. Our own lifecycle tenets
-(*"no tech debt… take the better long-term solution… scalability is preferred"*) are a **rationalization
-engine for gold-plating**, correct for a product we own and actively wrong for a small contribution to
-someone else's repo.
+**The lifecycle tenets are still right — point them at the DELIVERABLE and they kill you; point them at the
+THINKING and they are exactly correct.** *"No tech debt… take the better long-term solution… scalability is
+preferred"* is what produced #668's JSON registry and GC daemon. That author wasn't lazy; they gold-plated
+the **artifact they shipped**. Gold-plate the deliberation instead: it is free, it lives on the fork, and it
+is what makes the diff small.
 
-**The median PR that actually merges here is 6 lines and 1 file.** Nobody writes a PRD for that.
+**The median PR that actually merges here is 6 lines and 1 file.** That is a statement about the **diff**,
+not about how much thought went into it.
 
-| The change | What the fork pipeline should be |
+| The change | How deep the fork lifecycle goes (it always runs) |
 |---|---|
-| **A few lines of prose/config in an existing file** (most of what lands) | **No PRD. No ADR. No design doc. No deck.** Socialize on the issue, build it, gate it, open it. The deliberation belongs in the PR body's *Alternatives* section, which is where he'll actually read it. |
-| **A new behaviour, or one that touches tuned skill content** | A design doc *if* you genuinely have alternatives to weigh — and it exists to **make the diff smaller**, not to justify it. Its output is the PR's Alternatives section. Skip the PRD. |
-| **A new harness, or a real feature** | The full lifecycle earns its keep. This is rare. |
+| **A few lines of prose/config in an existing file** (most of what lands) | Light: a card is often enough — but write the design doc whenever there is a real choice to weigh. All of it stays on the fork. Then dispatch → review → `gitban-pr`. |
+| **A new behaviour, or one that touches tuned skill content** | A design doc, genuinely weighing alternatives — its job is to **make the diff smaller**. Its conclusions become the PR's *Alternatives* section. |
+| **A new harness, or a real feature** | The full arc: PRD ⇄ review → design ⇄ review → ADR ⇄ review → sprint. |
+
+Every row ends the same way: **a card, dispatched, reviewed, landed by `gitban-pr`, with every artifact
+retained on the fork for traceability and none of it pushed or linked upstream.** The rows differ only in
+how much deliberation precedes the card — never in whether the harness runs.
 
 **The test:** *if the artifact will not change what you ship, do not write it.* #1982's design doc did earn
 its keep — it ruled out naming `close_agent` and chose the 9-line option over a bigger one. But it did not
