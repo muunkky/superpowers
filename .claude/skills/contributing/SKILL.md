@@ -242,6 +242,23 @@ alibi.**
 Several PRs each clearing that test is not a batch. Several that don't is a trawl — even if you spread them
 over a week.
 
+**Measured 2026-07-14 — the count carries NO penalty.** Per-PR merge rate since the rule went in
+(2026-03-31), external authors only:
+
+| | merged / PRs | per-PR rate |
+|---|---|---|
+| authors with exactly ONE PR | 8 / 248 | **3.2%** |
+| authors with SEVERAL PRs | 7 / 189 | **3.7%** |
+
+Statistically indistinguishable. *"Pick ONE issue"* is real guidance in his CLAUDE.md, and the section it
+sits in is titled **"Bulk or spray-and-pray"** — the enforced thing is the spray. Both closed batches
+(@tianma-if 10-in-34s, @stablegenius49 12-in-6h on `pr-factory/*` branches) had **zero prior comments on
+every issue they touched.** That is the discriminator, and it is the one a trawler cannot fake.
+
+**So do not close a good PR to look tidy.** But do not read this as licence either: the base rate is
+**~3.5% per PR**, so several PRs mostly buys you several lottery tickets, and every one still has to clear
+the gate on its own.
+
 **Still true:** speed is the smell. If a human is impatient, socialize more issues; don't open more PRs
 faster. And when several are ready, lead with the one cheapest for him to verify.
 

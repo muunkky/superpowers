@@ -80,7 +80,8 @@ our four open PRs will likely be judged in the same pass.
 |---|---|
 | ~~We cannot run the eval harness~~ — **RESOLVED 2026-07-13.** The contributor bar is not Quorum, it's the RED/GREEN pressure test `writing-skills` itself prescribes: two trees, `claude -p … --plugin-dir`, 3+ reps per arm. Free, local, on the subscription. **We have now shipped one** — #1982 carries 0/3 on `dev` vs 3/3 with the change, plus a turn-back adversarial arm. Quorum (`evals/`, needs `ANTHROPIC_API_KEY`) is obra's internal lab and we do **not** need it. | ~~High~~ → none |
 | ~~#1982 touches tuned content with zero evals~~ — **RESOLVED 2026-07-13.** Dropped the Red Flags bullet proactively, citing his own rule. The PR now touches **no tuned content at all**; the release rule survives in the workflow steps. Cost: SDD's final-reviewer release is now a forward obligation with no ledger backstop. | ~~High~~ → none |
-| ~~Four PRs open~~ → **three** (#1983 closed in favour of #1987). Still an account with no merge history. | Medium → Low |
+| ~~Four PRs open… looks like volume~~ — **MEASURED AND DISMISSED 2026-07-14.** Per-PR merge rate since the rule: single-PR authors **3.2%** (8/248), multi-PR authors **3.7%** (7/189). The count carries no penalty; the *trawl signature* does, and both closed batches had 0 prior comments on every issue. We have a socialization comment 6h+ ahead of all three. | ~~Medium~~ → none |
+| **The base rate itself.** ~3.5% per PR, 175 PRs ahead of us, and obra has never spoken to us. Nothing in our control changes this. Three PRs ≈ 0.1 expected merges before adjusting for quality. **Silence is the expected outcome, not a verdict.** | High — and structural |
 | **Zero maintainer contact.** Every judgment about what obra wants is inferred from his writing, not from him. | Medium |
 
 ---
