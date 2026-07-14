@@ -195,6 +195,27 @@ PY
 )"
 assert_equals "$zip_times" "(1980, 1, 1, 0, 0, 0)" "zip archive normalizes entry timestamps"
 
+# A linked worktree's .git is a file, not a directory; packaging must still work there.
+linked_repo="$TEST_ROOT/linked-repo"
+linked_checkout="$TEST_ROOT/linked-checkout"
+git clone -q --no-local "$REPO_ROOT" "$linked_repo"
+git -C "$linked_repo" worktree add -q --detach "$linked_checkout" HEAD
+set +e
+linked_output="$(
+  cd "$linked_checkout"
+  scripts/package-codex-plugin.sh \
+    --metadata-source "$metadata_source" \
+    --output "$TEST_ROOT/linked.zip" 2>&1
+)"
+linked_status=$?
+set -e
+if [[ "$linked_status" -eq 0 ]]; then
+  pass "package script runs from a linked worktree"
+else
+  fail "package script runs from a linked worktree"
+  printf '%s\n' "$linked_output" | sed 's/^/    /'
+fi
+
 if tar_output="$("$SCRIPT_UNDER_TEST" --allow-dirty --metadata-source "$metadata_source" --format tar.gz --output "$tar_archive" 2>&1)"; then
   pass "package script writes explicit tar.gz archive"
 else
