@@ -16,15 +16,15 @@ sentence, in their words. Everything else, summarize freely.
 
 ---
 
-## Scoreboard — 2026-07-13
+## Scoreboard — 2026-07-14
 
 | Signal | Count |
 |---|---:|
 | PRs merged (ours) | **0** |
-| Our work merged inside someone else's PR | **2 items** |
-| Public endorsements from contributors | **2** |
+| Our work taken into someone else's PR | **3 items** — *none merged yet; those PRs are still open* |
+| Public endorsements from contributors | **3** |
 | Citations of our work by others | **1** |
-| Defects we caught in others' PRs | **4** (2 confirmed acted on) |
+| Defects we caught in others' PRs | **4** (3 confirmed acted on) |
 | Maintainer (@obra) responses to us | **0** |
 | PRs closed/rejected by upstream | **0** |
 
@@ -78,7 +78,7 @@ our four open PRs will likely be judged in the same pass.
 |---|---|
 | ~~We cannot run the eval harness~~ — **RESOLVED 2026-07-13.** The contributor bar is not Quorum, it's the RED/GREEN pressure test `writing-skills` itself prescribes: two trees, `claude -p … --plugin-dir`, 3+ reps per arm. Free, local, on the subscription. **We have now shipped one** — #1982 carries 0/3 on `dev` vs 3/3 with the change, plus a turn-back adversarial arm. Quorum (`evals/`, needs `ANTHROPIC_API_KEY`) is obra's internal lab and we do **not** need it. | ~~High~~ → none |
 | ~~#1982 touches tuned content with zero evals~~ — **RESOLVED 2026-07-13.** Dropped the Red Flags bullet proactively, citing his own rule. The PR now touches **no tuned content at all**; the release rule survives in the workflow steps. Cost: SDD's final-reviewer release is now a forward obligation with no ledger backstop. | ~~High~~ → none |
-| Four PRs open from an account with no merge history. Each justified; collectively it still *looks* like volume. | Medium |
+| ~~Four PRs open~~ → **three** (#1983 closed in favour of #1987). Still an account with no merge history. | Medium → Low |
 | **Zero maintainer contact.** Every judgment about what obra wants is inferred from his writing, not from him. | Medium |
 
 ---
@@ -88,7 +88,7 @@ our four open PRs will likely be judged in the same pass.
 | Date | What | Where |
 |---|---|---|
 | 2026-07-13 | **Mined obra's own close of #362 and it became #1982's best argument.** He closed a PR proposing our exact `close_agent` rule as *stale infrastructure, not on the merits*, and ended: *"if you'd like to revisit against the current codebase, we'd welcome a fresh PR."* Also `git log -S close_agent` showed `e7ddc25` deleted the boilerplate row **and added the obligation as prose in the same commit** — so we extend a rule he deliberately kept, rather than revert one. Both now in the body. *(Input, not yet a signal — logged because the play is repeatable.)* | [#362](https://github.com/obra/superpowers/pull/362) → [#1982](https://github.com/obra/superpowers/pull/1982) |
-| 2026-07-13 | **4th additive review: proved #1987's pi fix can't detect the regression it exists for.** Stripped the mapping table from `pi-tools.md` and their suite still reported `# pass 6 / # fail 0` — `/Task/` matches *"do not fabricate `Task` calls"*, prose whose job is to say Pi has **no** Task tool. Their antigravity half is correct and we said so. Offered our table-scoped assertion and offered to close our own #1983 in their favour. | [#1987](https://github.com/obra/superpowers/pull/1987#issuecomment-4964498316) |
+| 2026-07-14 | **@gaurav0107 ADOPTED our review and credited us in the commit.** We proved their pi fix couldn't detect the regression it exists for (table stripped → their suite still reported `# pass 6 / # fail 0`; `/Task/` matched *"do not fabricate `Task` calls"*, prose whose job is to say Pi has **no** Task tool). They reproduced it independently, pushed our table-scoped assertion as `0873545`, and wrote: *"this is exactly right… The approach and snippet are from your #1983 — credited in the commit message."* We closed #1983 in their favour, as promised on-thread. **3 of 4 additive reviews are now adopted.** | [#1987](https://github.com/obra/superpowers/pull/1987) |
 | 2026-07-13 | **@aznikline folded both our contributions into their PR and thanked us publicly** — operator docs + injection test. Our `dev`-vs-`main` flag also fixed their base branch. *"really nice writeup… I folded both of your bits straight into #1964 (appreciate you offering them as a follow-up rather than competing)"* | [#1964](https://github.com/obra/superpowers/pull/1964#issuecomment-4954024338) |
 | 2026-07-13 | **@Lady-Lin cites #1927 twice as closest prior art** when filing a related Codex-lifecycle issue. Their finding (a controller *inferring* `BLOCKED` from a `wait_agent` timeout and killing a healthy child) independently validates why our release rule is status-blind. | [#1979](https://github.com/obra/superpowers/issues/1979) |
 | 2026-07-13 | **@vladsoltan adopted ALL THREE points of our review.** *"Thanks for the detailed review. I've addressed all three points"* — dropped the `server.cjs` hunk we proved broke a test, aligned with obra's own #1805 that we spotted it duplicated, and retargeted `main` → `dev`. **Our review reshaped their PR.** | [#1976](https://github.com/obra/superpowers/pull/1976) |
@@ -113,13 +113,21 @@ All socialized on their issue threads before any code was written.
 
 | Play | Attempts | Result |
 |---|---:|---|
-| **Additive review on someone else's PR** | 4 | **2 confirmed acceptances + public thanks, 0 rejections.** 4th ([#1987](https://github.com/obra/superpowers/pull/1987)) just posted. |
+| **Additive review on someone else's PR** | 4 | **3 confirmed adoptions + public thanks, 0 rejections.** @aznikline folded our two bits in; @vladsoltan took all three points; @gaurav0107 shipped our assertion and credited it. |
 | **Mining the maintainer's own closing comments for what he'd accept** | 4 | Sourced 3 of our 4 PRs. Also found obra's standing invitation on the closed [#362](https://github.com/obra/superpowers/pull/362) — *"if you'd like to revisit against the current codebase, we'd welcome a fresh PR"* — which is now #1982's strongest argument. Unproven until reviewed. |
-| **Our own PRs** | 4 | 0 reviewed. In a pile of 178. |
+| **Our own PRs** | 4 (3 still open) | **0 reviewed, 0 merged, 0 maintainer responses.** In a pile of 176. |
 
-**The read:** standing is being built in *other people's threads*, not ours — and it is now 2-for-3 there while 0-for-4 on our own PRs. At 3% merge rate with an
-underwater maintainer, improving someone else's PR is cheap to accept and hard to dismiss. Keep opening our
-own PRs — the process is sound — but **helping on other people's PRs is the engine.**
+**The read — and it is uncomfortable.** Every unit of standing we have was earned in *someone else's*
+thread: **3 of 4 additive reviews adopted, with public thanks each time.** Our own PRs are **0 for 4** —
+not rejected, just unread, sitting in a queue of 176 behind a maintainer who has never said a word to us.
+
+The asymmetry is structural, not luck. An additive review costs the recipient nothing to accept and is
+*hard to dismiss* — it arrives as free work on a PR they already want landed. Our own PR asks a
+maintainer with 176 open PRs to spend the scarcest thing he has. **Improving someone else's PR is the
+engine; opening our own is a lottery ticket we should keep buying but not count on.**
+
+Note honestly what does NOT transfer on a handoff: the *tactic* does, the *relationships* (@aznikline,
+@vladsoltan, @gaurav0107, @Lady-Lin) do not. A new team starts at 0 here and should expect to.
 
 ---
 
