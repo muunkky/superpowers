@@ -13,7 +13,7 @@ set -uo pipefail
 # silently checks the wrong account still prints "clean".
 UP="$(git remote get-url upstream 2>/dev/null | sed -E 's#.*github\.com[:/]##; s#\.git$##')"
 ME="$(git remote get-url origin   2>/dev/null | sed -E 's#.*github\.com[:/]##; s#/.*##')"
-[ -n "$UP" ] && [ -n "$ME" ] || { echo "🔴 need 'origin' and 'upstream' remotes — run scripts/fork-setup.sh" >&2; exit 2; }
+[ -n "$UP" ] && [ -n "$ME" ] || { echo "🔴 need 'origin' and 'upstream' remotes — run .claude/skills/contributing/fork-setup.sh" >&2; exit 2; }
 fail=0
 flag() { echo "  🔴 $1"; fail=1; }
 ok()   { echo "  ✅ $1"; }
@@ -67,7 +67,7 @@ check_text() {  # $1=label $2=text $3=is_comment
     flag "AP1: assertion, not execution. Run it and quote the output."
 
   # Unverifiable numbers — their triage re-runs every one.
-  n=$(grep -oE "~[0-9]+|approximately [0-9]+|roughly [0-9]+|[0-9]+ (added )?words" <<<"$T" | wc -l)
+  n=$(grep -oiE "~[0-9]+|approximately [0-9]+|roughly [0-9]+|[0-9]+ (added )?words" <<<"$T" | wc -l)
   [ "$n" -gt 0 ] && flag "AP1: $n unverifiable/approximate count(s) (incl. word counts). Use git diff --numstat — they re-run it."
 
   # AP7 — sounding like a bot

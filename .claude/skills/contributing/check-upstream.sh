@@ -20,7 +20,7 @@ set -uo pipefail
 # The remotes already know who you are; ask them.
 UPSTREAM="$(git remote get-url upstream 2>/dev/null | sed -E 's#.*github\.com[:/]##; s#\.git$##')"
 ME="$(git remote get-url origin 2>/dev/null | sed -E 's#.*github\.com[:/]##; s#/.*##')"
-[ -n "$UPSTREAM" ] || { echo "no 'upstream' remote — run scripts/fork-setup.sh" >&2; exit 2; }
+[ -n "$UPSTREAM" ] || { echo "no 'upstream' remote — run .claude/skills/contributing/fork-setup.sh" >&2; exit 2; }
 [ -n "$ME" ]       || { echo "no 'origin' remote — cannot tell whose threads to sweep" >&2; exit 2; }
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 STATE="$DIR/WATCH.state"
@@ -104,7 +104,7 @@ if [ "$MODE" = "all" ]; then
 else
   echo "  $needs_reply of $total threads have new activity."
   if [ "$needs_reply" -eq 0 ]; then
-    echo "  Nothing to answer. (Silence here is normal — ~76% of decided PRs are"
+    echo "  Nothing to answer. (Silence here is normal — 84.5% of decided PRs are"
     echo "   closed unmerged and closures come in waves. Quiet is not a verdict.)"
   else
     echo

@@ -520,10 +520,14 @@ what keeps a PR both clean and acceptable to a strict upstream:
   | All plugins installed | `jq -r '.enabledPlugins \| keys[]' ~/.claude/settings.json` — **ALL of them.** Name gitban with its link (muunkky.github.io/gitban-site). A plugin that played no part in the work is still *installed*: **enumerate, don't curate.** Never write "no others" — it is a checkable claim |
   | Human partner who reviewed this diff | **The name and @handle of the human who actually read this diff, in this session.** They look the account up. Never pre-fill it, never inherit it from an example, never name someone who did not read it. If no human has read the diff yet, **the PR is not ready to open** |
 
-  On 2026-07-13 this table shipped four PRs naming only gitban while three other plugins were enabled,
-  one of them asserting "No others.", and all four carrying a stale harness version — because the
-  template had the answers pre-filled and we recited them. `contributing/preflight.sh --body` now diffs
-  your table against `settings.json` and `claude --version`. Run it; don't trust this paragraph.
+  **Verify the table before you open the PR — don't trust this paragraph:**
+
+  ```bash
+  .claude/skills/contributing/preflight.sh --body <your-body.md>
+  ```
+
+  It diffs your table against `settings.json` and `claude --version` and fails if a cell was recited
+  rather than read. (Why this control exists: see the disclosure rows in `contributing/CREDIBILITY.md`.)
 
   **NEVER write a sentence describing what gitban does.** Not "an autonomous development harness", not
   "driving the roadmap → PRD → design → ADR → sprint lifecycle", not "with an adversarial reviewer at
