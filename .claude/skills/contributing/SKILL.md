@@ -208,6 +208,55 @@ push you into volume.
 > **If you remember one line:** *he is not asking whether your change is good. He is asking whether you are
 > real. Answer that, in evidence he can re-run himself, and ship the smallest thing that works.*
 
+## ⚖️ Calibration — read this BEFORE the anti-patterns, or you will over-correct
+
+This file is a threat catalogue: it is ~46 words of *fatal / kill / closed* to ~7 of *this is fine*. That
+ratio is a defect in the file, not a description of the danger. **Anxiety is not rigor.** It manufactures
+findings, and a manufactured finding is indistinguishable from a real one until you check it — the same
+demand-characteristics trap this file warns about when briefing a reviewer.
+
+**The list of things that kill you regardless of a correct diff is SHORT, SPECIFIC, and entirely avoidable:**
+
+1. **A sentence the repo state falsifies** — a reviewer whose account doesn't exist, a ticked box the file
+   contradicts, "no prior PRs" when yours is right there.
+2. **A claim you did not execute** — *"By inspection."*
+3. **Wrong venue, or not his defect** — the largest bucket, decided before your code is read.
+4. **Reverting a deliberate decision** without evals — he git-blames everything.
+5. **The trawl** — a PR with no engagement anywhere that pre-dates it.
+
+Clear those five and you are not going to be closed *on fault*. You may still not be merged — the base rate
+is ~3.5% per PR against 176 open — but **that is queue depth, not judgement, and no amount of further
+polishing touches it.**
+
+**Measured, and NOT worth a minute of worry:**
+
+| Fear | Reality |
+|---|---|
+| Targeting `main` instead of `dev` | 16 of 28 did. *"just housekeeping, not why we're closing"* (#956). |
+| Merge conflicts | Excused when they're from his own history rewrite (#1937). |
+| Being an agent | He triages with one and says so. Disclose it and move on. |
+| Having several PRs open | **No penalty. 3.7% per-PR vs 3.2% for single-PR authors.** |
+| Silence | 43% of closures carry no word from him. Quiet = untriaged. |
+| An awkward sentence, a long body, imperfect prose | Nobody has ever been closed for this. |
+
+**What over-correcting actually cost, in one session (2026-07-14) — every item produced BY this file's
+threat-density, and every one wrong:**
+
+- Called the upstream **"hostile"** and asked whether the maintainer was interrogating us. He has never sent
+  us a single message. The fear invented an adversary.
+- Panicked at a **176:1 process-to-output ratio** and nearly wrote it in here as doctrine. It measured the
+  wrong thing entirely — he punishes complicated *solutions*, not deep thought.
+- Nearly recommended **closing three good PRs to look tidy.** The data then showed the count carries no
+  penalty at all.
+- Reasoned confidently from a **"footer" signal that was fabricated** — inherited from our own report, which
+  had string-matched a misquote.
+- **Miscounted an eval twice with greps**, in opposite directions, while rushing to find something wrong.
+
+**So: be rigorous about the five. Be relaxed about everything else.** The correct posture is a careful person
+doing careful work, not a frightened one hunting for the next disqualifier. If you find yourself building a
+case that you are doomed, you have stopped doing the work and started performing the anxiety — **go check the
+base rate and then go review someone else's PR.**
+
 ## Anti-patterns — what actually gets you closed
 
 **The triage is not a code reviewer. It is a groundedness detector.** They do not ask "is this code good."
