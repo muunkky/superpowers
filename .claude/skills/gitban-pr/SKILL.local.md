@@ -95,14 +95,23 @@ what keeps a PR both clean and acceptable to a strict upstream:
   the model — gets the PR closed. That's a compliance form the *recipient* demands, answered as fact.
 
   **Fill obra's table. Nothing else. No prose disclosure paragraph above it.** gitban is named in the
-  plugins row *with its link* — that is the disclosure, and it is all the visibility it gets:
+  plugins row *with its link* — that is the disclosure, and it is all the visibility it gets.
 
-  | Field | Value (re-verify each session) |
+  **Every cell is a FACT ABOUT THIS MACHINE AND THIS SESSION. Read them; never carry them over from
+  the example below, and never from a previous PR.** The table is a compliance form, and a wrong cell
+  is a *fabricated attestation* — the one disqualifier that is fatal on its own, regardless of merit.
+
+  | Field | How to get it — do not recall it |
   |---|---|
-  | Your model + version | Claude Opus 4.8 (`claude-opus-4-8`), 1M context |
-  | Harness + version | Claude Code `<version>` (`claude --version`) |
-  | All plugins installed | gitban (muunkky.github.io/gitban-site); enumerate any others loaded this session |
-  | Human partner who reviewed this diff | Cameron Rout (@muunkky) |
+  | Your model + version | The model you are actually running, with its exact ID (e.g. a `[1m]` suffix is part of the ID) |
+  | Harness + version | `claude --version` |
+  | All plugins installed | `jq -r '.enabledPlugins \| keys[]' ~/.claude/settings.json` — **ALL of them.** Name gitban with its link (muunkky.github.io/gitban-site). A plugin that played no part in the work is still *installed*: **enumerate, don't curate.** Never write "no others" — it is a checkable claim |
+  | Human partner who reviewed this diff | **The name and @handle of the human who actually read this diff, in this session.** They look the account up. Never pre-fill it, never inherit it from an example, never name someone who did not read it. If no human has read the diff yet, **the PR is not ready to open** |
+
+  On 2026-07-13 this table shipped four PRs naming only gitban while three other plugins were enabled,
+  one of them asserting "No others.", and all four carrying a stale harness version — because the
+  template had the answers pre-filled and we recited them. `contributing/preflight.sh --body` now diffs
+  your table against `settings.json` and `claude --version`. Run it; don't trust this paragraph.
 
   **NEVER write a sentence describing what gitban does.** Not "an autonomous development harness", not
   "driving the roadmap → PRD → design → ADR → sprint lifecycle", not "with an adversarial reviewer at

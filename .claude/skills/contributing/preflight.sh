@@ -9,7 +9,11 @@
 #   ./preflight.sh --text file.md # a draft COMMENT before you post it
 #   ./preflight.sh --body file.md # a draft PR BODY (skips the comment-only length/heading rules)
 set -uo pipefail
-UP="obra/superpowers"; ME="muunkky"
+# Derived, never hardcoded — see the note in check-upstream.sh. An audit that
+# silently checks the wrong account still prints "clean".
+UP="$(git remote get-url upstream 2>/dev/null | sed -E 's#.*github\.com[:/]##; s#\.git$##')"
+ME="$(git remote get-url origin   2>/dev/null | sed -E 's#.*github\.com[:/]##; s#/.*##')"
+[ -n "$UP" ] && [ -n "$ME" ] || { echo "🔴 need 'origin' and 'upstream' remotes — run scripts/fork-setup.sh" >&2; exit 2; }
 fail=0
 flag() { echo "  🔴 $1"; fail=1; }
 ok()   { echo "  ✅ $1"; }

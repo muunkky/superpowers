@@ -14,8 +14,14 @@
 #   ./check-upstream.sh --all        # every thread + its state, ignore timestamps
 set -uo pipefail
 
-UPSTREAM="obra/superpowers"
-ME="muunkky"
+# Identity is DERIVED, never hardcoded. A hardcoded account is a silent
+# wrong-answer bug: run by anyone else, the sweep enumerates someone else's
+# threads, finds none of yours, and prints its success banner — and you trust it.
+# The remotes already know who you are; ask them.
+UPSTREAM="$(git remote get-url upstream 2>/dev/null | sed -E 's#.*github\.com[:/]##; s#\.git$##')"
+ME="$(git remote get-url origin 2>/dev/null | sed -E 's#.*github\.com[:/]##; s#/.*##')"
+[ -n "$UPSTREAM" ] || { echo "no 'upstream' remote — run scripts/fork-setup.sh" >&2; exit 2; }
+[ -n "$ME" ]       || { echo "no 'origin' remote — cannot tell whose threads to sweep" >&2; exit 2; }
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 STATE="$DIR/WATCH.state"
 

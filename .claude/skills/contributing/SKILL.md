@@ -391,30 +391,23 @@ contribution), and the fork mirror issue (the narrative). **Cross-link all three
   branch and where contributions land. (Flip to `upstream/main` only if you deliberately want the
   released base; state which you chose.)
 
-## New-machine / fork setup (do this on every fresh clone)
-
-Two things do **not** travel through git and must be re-established per machine:
-
-1. **`.git/info/exclude`** — a local, uncommitted ignore (see the guardrail below). Never synced.
-2. **The `upstream` remote** and its disabled push URL.
-
-Keep a tracked-on-the-fork setup script (e.g. `scripts/fork-setup.sh`, force-added to the fork,
-**never** sent upstream) that recreates both, so a new clone is one command away from correct:
+## New-machine / fork setup — FIRST COMMAND ON EVERY FRESH CLONE
 
 ```bash
-# scripts/fork-setup.sh  (lives on the fork; run once per clone)
-git remote add upstream https://github.com/obra/superpowers.git 2>/dev/null || true
-git remote set-url --push upstream DISABLED
-cat >> .git/info/exclude <<'EOF'
-.gitban/
-docs/prds/
-docs/adr/
-docs/designs/
-docs/decks/
-docs/reports/
-CONTRIBUTING-gitban.md
-EOF
+.claude/skills/contributing/fork-setup.sh    # idempotent; verifies, doesn't just assert
 ```
+
+Two things do **not** travel through git, so a fresh clone is **silently unsafe until you run this**:
+
+1. **`.git/info/exclude`** — the local ignore that makes gitban's artifacts invisible to git (the
+   guardrail below). Never synced. Without it, `git add -A` on a contribution branch stages
+   `.gitban/` and `docs/prds/` and they ship in the upstream PR.
+2. **The `upstream` remote** and its **disabled push URL**. Without it, nothing stops
+   `git push upstream` from reaching the canonical repo.
+
+The script recreates both and then *proves* it: it writes a probe file under `.gitban/` and checks
+`git check-ignore` actually hides it. It was prose in a code block here until 2026-07-14 and nobody
+had ever run it — which meant the guardrail the whole skill rests on did not exist on disk.
 
 `.claude/` itself is tracked on the fork (force-added — the tracked root `.gitignore` ignores it),
 so your skills, `.claude/CLAUDE.md`, and this playbook sync across machines automatically. It never

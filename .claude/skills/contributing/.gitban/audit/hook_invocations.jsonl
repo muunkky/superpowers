@@ -1,0 +1,12 @@
+{"ts":"2026-07-13T18:03:18.580Z","hook":"cwd-pin-check","tool":"Bash","classification":"pass","target":"","bypass_sentinel_id":"","exit_code":0,"handle":"unknown"}
+{"ts":"2026-07-13T18:03:18.583Z","hook":"forge-action-guard","tool":"Bash","classification":"pass","target":"","bypass_sentinel_id":"","exit_code":0,"handle":"unknown"}
+{"ts":"2026-07-13T18:03:18.588Z","hook":"validate-no-direct-gitban-state-edit","tool":"Bash","classification":"pass","target":"","bypass_sentinel_id":"","exit_code":0,"handle":"unknown"}
+{"ts":"2026-07-13T21:56:05.100Z","hook":"cwd-pin-check","tool":"Bash","classification":"pass","target":"","bypass_sentinel_id":"","exit_code":0,"handle":"unknown"}
+{"ts":"2026-07-13T21:56:05.124Z","hook":"forge-action-guard","tool":"Bash","classification":"pass","target":"","bypass_sentinel_id":"","exit_code":0,"handle":"unknown"}
+{"ts":"2026-07-13T21:56:05.124Z","hook":"validate-no-direct-gitban-state-edit","tool":"Bash","classification":"pass","target":"","bypass_sentinel_id":"","exit_code":0,"handle":"unknown"}
+{"ts":"2026-07-13T21:56:17.013Z","hook":"cwd-pin-check","tool":"Bash","classification":"pass","target":"","bypass_sentinel_id":"","exit_code":0,"handle":"unknown"}
+{"ts":"2026-07-13T21:56:17.031Z","hook":"validate-no-direct-gitban-state-edit","tool":"Bash","classification":"pass","target":"","bypass_sentinel_id":"","exit_code":0,"handle":"unknown"}
+{"ts":"2026-07-13T21:56:17.040Z","hook":"forge-action-guard","tool":"Bash","classification":"pass","target":"","bypass_sentinel_id":"","exit_code":0,"handle":"unknown"}
+{"ts":"2026-07-13T21:56:55.540Z","hook":"forge-action-guard","tool":"Bash","classification":"pass","target":"","bypass_sentinel_id":"","exit_code":0,"handle":"unknown"}
+{"ts":"2026-07-13T21:56:55.534Z","hook":"cwd-pin-check","tool":"Bash","classification":"pass","target":"","bypass_sentinel_id":"","exit_code":0,"handle":"unknown"}
+{"ts":"2026-07-13T21:56:55.549Z","hook":"validate-no-direct-gitban-state-edit","tool":"Bash","classification":"pass","target":"","bypass_sentinel_id":"","exit_code":0,"handle":"unknown"}
