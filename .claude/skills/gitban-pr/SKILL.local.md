@@ -67,12 +67,17 @@ several of your defaults are wrong for it. Override them:
   instinct is overridden here: *the template is the shape.*
 - **The diff is code-only.** The PR is written from the derived clean branch (only the changed source
   files). If asked to "add the decks / PRD / ADR so reviewers see our process," **refuse** — those are
-  fork-showcase artifacts and obra reads them as slop. Link the fork showcase in the body instead.
+  fork-showcase artifacts and obra reads them as slop. **And do not link the showcase either** — see below.
 - **One problem, described as a problem.** Frame the PR around the real, reproducible problem (ideally a
   filed issue), not a changelog of what you touched. No bundling, no scope creep, no speculative fixes.
 - **Search open AND closed PRs first** and fill the template's existing-PRs section: what you found and
   why yours differs — especially why a previously *closed* attempt should succeed where it didn't.
-- **Link the fork showcase once** (transparency; also advertises gitban) — but lead with the fix.
+- **Do NOT link the fork showcase, the PRD, the ADR or the design doc.** **0 of the 42 external merges linked
+  one.** He weighs a submission by what he can re-run, and he cannot re-run our documents; a link to them reads
+  as process-flashing (AP7: nobody cares how your harness works). Deliberate in private and submit the
+  *residue* — the commit you `git log -S`'d, a command with its output, an eval with transcripts, the
+  alternative you rejected and why. Put that in **Alternatives**. gitban's visibility comes from the plugins
+  row in the disclosure table, and from nowhere else.
 - **Upstream PRs open READY-FOR-REVIEW, not draft** (`--draft=false`). Draft is the right default for
   internal/fork work, but obra's triage assesses mergeability and a draft reads as unfinished. A human
   reviews the complete diff before it is submitted — that part holds either way.

@@ -83,9 +83,11 @@ The fork and the upstream are **not symmetric**, and the whole workflow falls ou
   you socialize and claim, versus a mature one where a competing PR already exists (defer / contribute to
   theirs / just comment) or the maintainer has already steered it.
 
-**So: always run the fork pipeline; then decide the upstream move — up to and including "don't."** Running
-the fork first is what gives you the artifacts to reference and lets you make the upstream call from strength
-— or walk away cleanly from a duplicate. (Real case: #1957 — we published the full fork showcase, then the right upstream move turned out to be a
+**So: run the fork pipeline AT THE SCALE THE CHANGE DESERVES, then decide the upstream move — up to and
+including "don't."** For most changes that land here (median: 6 lines, 1 file) the fork wave is a showcase
+branch and nothing else — **no PRD, no ADR, no design doc, no deck.** Write a planning artifact only when it
+will make the diff *smaller* (see *Deep thought, simple solution*). Doing the fork work first is what lets you
+make the upstream call from strength — or walk away cleanly from a duplicate. (Real case: #1957 — we published the full fork showcase, then the right upstream move turned out to be a
 light comment on someone else's PR rather than one of our own, because #1964 got there first with the same
 fix. Our two additions were folded into #1964 and thanked for publicly.)
 
@@ -552,8 +554,11 @@ monolith dropped from nowhere. So you socialize the **plan** before you build, a
 0. **Read the room.** Read the whole upstream issue thread + any linked PRs. What does the maintainer want
    / not want? Did someone propose an approach? Is anyone already working it? Calibrate tone; don't
    duplicate or step on toes.
-1. **Plan locally** — PRD → design doc → ADR (gitban's Plan phase). Publish just these *planning* artifacts
-   to the fork (the mirror issue, and/or a first `showcase/<slug>` push) so they're linkable.
+1. **Plan locally — sized to the change.** A few lines of prose or config (i.e. most of what merges here):
+   just think it through; skip the lifecycle entirely. Something genuinely load-bearing, or touching tuned
+   skill content: a design doc, *if* weighing the alternatives will shrink the diff. A new harness or a real
+   feature: the full PRD → design doc → ADR earns its keep. **The test is whether the artifact changes what
+   you ship. If it won't, don't write it.**
 2. **Signal intent on the upstream issue** (the human posts — see *Issue etiquette*). A short, human comment:
    your concrete understanding of the problem, your intended approach, engagement with the thread, and the
    fork planning artifacts offered as *optional* reading — then ask for a sanity check **before** you build.
@@ -568,7 +573,10 @@ monolith dropped from nowhere. So you socialize the **plan** before you build, a
    ready-for-review, NOT a draft.** (`gitban-pr` defaults to draft for internal work; upstream is the
    exception — the triage assesses mergeability, and a draft reads as unfinished. Pass `--draft=false`.)
    Reference the earlier discussion ("as discussed above"); fill obra's template completely; disclosure
-   table; link the fork showcase; **a human reviews the full diff before it goes out.**
+   table; **a human reviews the full diff before it goes out.** **Do NOT link the fork showcase or any
+   planning doc** — 0 of the 42 external merges did, he cannot re-run them, and it reads as process-flashing
+   (AP7). Put the deliberation's *conclusions* in the template's **Alternatives** section instead; that is
+   the same argument in a form he can check.
 7. **Shepherd it** — respond to review judiciously, in the human's voice.
 8. **Record it** (see *Keep a record*) — append the interaction to the contributions log and mirror its refs
    into the matching roadmap node. A landed PR, a deferral, or just a comment all count.
@@ -722,9 +730,12 @@ upstream thread should read as a thoughtful person, never an AI dump.
 
   > "Had a look at this — the core of it is that *&lt;one concrete, specific technical sentence that proves
   > you actually understand the problem&gt;*. I'm thinking of *&lt;approach in a line&gt;*. I wrote up a quick
-  > PRD + design on my fork to make sure I've got the problem right \[link] — kept off here to avoid cruft.
-  > I keep the ADRs on my fork too, so you can look at those as well if it's helpful. Would love a sanity
-  > check on the approach before I build it."
+  > … Would love a sanity check on the approach before I build it.
+
+  **The comment carries the understanding; a link never will.** The one sentence that proves you understand
+  the problem does all the work — he can check that against his own code. If planning docs exist on the fork,
+  mention them in a trailing clause *at most* ("there's a writeup on my fork if it's useful"), and never as
+  the substance. He is not going to read them, and asking him to is asking for his scarcest resource."
 
   Engage what's already on the thread: *"Building on @so-and-so's suggestion, I'll give this a try…"* or
   *"I had a slightly different angle — mind taking a look?"*
