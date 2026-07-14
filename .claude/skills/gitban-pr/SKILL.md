@@ -429,7 +429,8 @@ by 36%.
 
 ## Every claim you write will be machine-tested. Plan accordingly.
 
-**76% of decided PRs here are closed unmerged (416 vs 131), and the single most common cause is a claim
+**Most decided PRs here are closed unmerged (the measured rate lives in `contributing/CREDIBILITY.md`
+— Baseline; do not restate it here, it drifts). The single most common cause is a claim
 that does not survive a check against the tree.** obra triages with an adversarial agent that re-tests
 every factual claim against `dev` (his words, closing #1903: *"every factual claim tested against the
 current `dev` tree, then adversarially re-checked by a second, independent agent"*).

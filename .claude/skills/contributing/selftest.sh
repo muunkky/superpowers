@@ -55,6 +55,14 @@ for d in docs/prds docs/adr docs/designs docs/decks docs/reports; do
 done
 git check-ignore -q "docs/prds/__x" && ok "lifecycle doc dirs are invisible to git"
 
+# The gate says to draft every comment and PR body into tmp/ before posting. If
+# git can see them, a draft can be committed onto a contribution branch.
+mkdir -p tmp 2>/dev/null; : > tmp/__selftest_probe
+git check-ignore -q tmp/__selftest_probe \
+  && ok "tmp/ (where the gate says to draft) is invisible to git" \
+  || bad "tmp/ IS VISIBLE to git — a draft comment can be committed into an upstream PR"
+rm -f tmp/__selftest_probe
+
 grp "the guardrail: upstream is fetch-only"
 [ "$(git remote get-url --push upstream 2>/dev/null)" = "DISABLED" ] \
   && ok "upstream push URL is DISABLED" \

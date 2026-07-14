@@ -37,7 +37,10 @@ echo "✅ upstream push URL: DISABLED (a stray 'git push upstream' now fails)"
 EX=.git/info/exclude
 mkdir -p "$(dirname "$EX")"; touch "$EX"
 added=0
-for e in '.gitban/' 'docs/prds/' 'docs/adr/' 'docs/designs/' 'docs/decks/' 'docs/reports/' 'CONTRIBUTING-gitban.md'; do
+# 'tmp/' is load-bearing: the posting gate tells you to draft every comment and
+# PR body into tmp/ first. If git can see those drafts, they can be committed
+# onto a contribution branch and shipped upstream — the exact leak this prevents.
+for e in '.gitban/' 'docs/prds/' 'docs/adr/' 'docs/designs/' 'docs/decks/' 'docs/reports/' 'CONTRIBUTING-gitban.md' 'tmp/'; do
   grep -qxF "$e" "$EX" || { echo "$e" >> "$EX"; added=$((added+1)); }
 done
 echo "✅ .git/info/exclude: $added entr$([ "$added" = 1 ] && echo y || echo ies) added, $(grep -cvE '^\s*(#|$)' "$EX") total"

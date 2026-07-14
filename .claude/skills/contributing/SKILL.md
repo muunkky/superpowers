@@ -20,6 +20,44 @@ description: >
 
 # Contributing — local → fork → upstream
 
+## Day one — do these in this order
+
+**A fresh clone is unsafe until step 1.** Do not skip it because the repo "looks fine": the guardrail that
+keeps our artifacts out of an upstream PR does not travel through git, so on a new clone it does not exist.
+
+```bash
+.claude/skills/contributing/fork-setup.sh          # 1. make the clone safe. FIRST COMMAND, ALWAYS.
+.claude/skills/contributing/selftest.sh            # 2. prove the playbook's controls actually work
+.claude/skills/contributing/check-upstream.sh --all  # 3. every thread we've already touched
+```
+
+4. **Read [`CREDIBILITY.md`](CREDIBILITY.md)** — what has actually worked, and what we are not allowed to
+   repeat. Its *Baseline* table is the only place measured numbers live; nothing else here restates them.
+5. **Pick work from *Where the free work is* (below), not from the issue tracker.** Trawling the tracker is
+   the single most reliable way to get closed.
+6. **Then follow *The sequence*, and never post anything without the gate** (*⛔ NEVER POST DIRECTLY*).
+
+Everything else in this file is **reference**. Read a section when you reach the step that names it.
+
+| File | What it is |
+|---|---|
+| `SKILL.md` (this) | The playbook: how the fork works, what gets you closed, how to post. **Guidance.** |
+| `CREDIBILITY.md` | The scoreboard: what happened, what worked, the measured baseline. **State.** |
+| `fork-setup.sh` | Makes a clone safe. Idempotent. Run once per clone. |
+| `preflight.sh` | The mechanical gate. `--text` a comment, `--body` a PR body, bare = audit live PRs. |
+| `check-upstream.sh` | Sweeps every thread we've touched for replies. |
+| `selftest.sh` | Regression suite for the controls above. Run it after editing this skill. |
+
+**The cast:** *obra* is Jesse Vincent, the maintainer — he triages, and he is the one who closes things.
+*arittr* is the other frequent committer. *muunkky* is this fork. Where this file says "we", it means the
+people who ran this playbook before you; where it says **2026-07-13**, it means one bad session in which we
+committed five of the eight anti-patterns below in a single morning — every control in this directory exists
+because of something that went wrong that day, and the receipts are in `CREDIBILITY.md`.
+
+**One warning about this file's own voice.** It is written for an agent's attention — heavy bold, dense
+em-dashes, hammering repetition. **Do not imitate it.** What you post upstream must look nothing like what
+you are about to read: plain prose, short, no headers, no bold. See anti-pattern 7.
+
 This repo is a **fork** of someone else's project. Almost every mistake here is a *leak* — fork
 tooling or lifecycle artifacts bleeding into what should be a tight upstream contribution, or an
 edit to a tracked upstream file that causes merge pain later. One rule prevents nearly all of it:
@@ -159,6 +197,20 @@ removed it, you are not fixing a bug — you are reverting a decision, and you n
 — an unticked box with a reason has never killed a PR; a false tick is sole-sufficient. And **anything you
 say on the thread is part of the submission**: if you promise something and then do otherwise, correct it
 in public before they find it.
+
+**And do the prior-art sweep the way that actually finds things — by the RULE'S OWN KEYWORDS, across CLOSED
+history, not by issue number.** This is the countermeasure to the #1166 kill and it is not optional:
+
+```bash
+gh search prs --repo obra/superpowers --state closed "<the identifier your change is about>"
+git log -S'<the thing you are adding>' upstream/dev      # was it deliberately REMOVED? (that's AP2)
+```
+
+Searching the open list and recent closures is what we did on #1982, and it missed **#362** — a closed PR
+proposing our exact rule, sitting there with obra's own *"we'd welcome a fresh PR"* on it — while the box
+saying we had reviewed all closed PRs was ticked. **The graveyard is where the prior art is, and it is also
+where the free work is:** a close is usually staleness, not rejection, and the closing comment often carries
+a standing invitation nobody has claimed.
 
 ### ❌ 4. Volume without engagement — a trawl, not a count
 
@@ -434,18 +486,25 @@ when you publish the showcase. **Do not "fix" this by moving the entries into th
 
 ## Keeping the fork in sync with upstream
 
-`obra`'s `dev` (and `main`) keep moving. Re-sync **at least before starting each contribution** so
-your base is current and your PR merges cleanly:
+`obra`'s `dev` keeps moving. Re-fetch **before starting each contribution** so your base is current.
+
+**You do not "sync main". `main` is OURS and it has diverged permanently, on purpose** — it carries
+`.claude/` and the fork's tooling, which upstream will never have. It is dozens of commits ahead of
+`upstream/dev` and `git merge --ff-only upstream/dev` will refuse forever. That is the architecture
+working, **not** a sign you broke something.
+
+**`upstream/dev` is the base you build on; you never merge it into `main`.** All you need is:
 
 ```bash
-git fetch upstream
-git checkout main
-git merge --ff-only upstream/dev      # or upstream/main, whichever main tracks
-git push origin main
+git fetch upstream        # that's it — upstream/dev is now current
 ```
 
-If `--ff-only` refuses, your fork's main has diverged (usually because tooling/artifacts were
-committed to it) — rebase or reconcile deliberately rather than force-merging.
+Every contribution branch is cut *fresh off `upstream/dev`* (see *Opening the upstream PR*), so it is
+current by construction and carries none of the fork's tooling. `main` never touches upstream and never
+needs to.
+
+Only if you want the fork's `main` to also carry obra's latest code (for local testing against a current
+tree): `git merge upstream/dev` — an ordinary merge, never `--ff-only`, never a force-push.
 
 ## The disclosure — one line, identical every time
 
@@ -453,16 +512,25 @@ obra requires model + harness + plugins. Naming the plugin is mandatory — so *
 link**. That is legitimate and it is the visibility we want. What is NOT allowed is *narrating what gitban
 does*. Use exactly this in every comment, varying only the short grounding clause:
 
-> Disclosure: agent-assisted — Claude Opus 4.8 (`claude-opus-4-8[1m]`), Claude Code \<live version\>.
-> Plugins: gitban (muunkky.github.io/gitban-site), \<every other enabled plugin\>. Not `superpowers` itself.
+> Disclosure: agent-assisted — \<model + exact ID\>, \<harness + version\>.
+> Plugins: \<every enabled plugin; name gitban with its link, muunkky.github.io/gitban-site\>.
 > Grounded in \<one short clause: what you actually ran or read\>.
 
-**Both variable fields are FACTS ABOUT THIS MACHINE. Read them, never recall them:**
+**EVERY field is a fact about THIS machine and THIS session. Read them; never recall them, and never
+copy them out of this file** — the angle brackets are deliberate, and a template that ships its own
+answers gets recited instead of read. That is not a hypothetical: this template used to hardcode the
+model, the version and the plugin list, and it produced four PRs that named one plugin out of four and
+a harness version that had already moved.
 
 ```bash
 claude --version                                              # the harness version, right now
 jq -r '.enabledPlugins | keys[]' ~/.claude/settings.json      # EVERY enabled plugin, not just gitban
 ```
+
+The model is whatever you actually are, with its **exact ID** — a `[1m]` suffix is part of the ID.
+**Enumerate, don't curate:** a plugin that played no part in the work is still *installed*. And never
+close the list with a flourish like "no others" or "nothing else" — that is a checkable assertion, and
+it is the one shape of sentence that is fatal on its own.
 
 His bar is *"all installed plugins"*, and *"contributions that hide their authoring environment will be
 closed."* **"gitban. No others." is a checkable false statement** — we shipped exactly that on #1984 while
@@ -539,7 +607,10 @@ git commit                                               # no attribution footer
 git diff --stat upstream/dev                             # exactly the change, nothing else
 ```
 
-Open as a draft, human reviews the full diff, **then mark it ready** — a draft is not a request for review.
+**The human reviews the complete diff BEFORE it goes out — that is the one box we ever tick — and then you
+open it ready-for-review, not as a draft** (`--draft=false`; `gitban-pr` defaults to draft for internal work
+and upstream is the exception). The triage assesses mergeability, and a draft reads as unfinished. Do not
+open it early and mark it ready later: the human review is a gate *before* the PR exists, not a stage of it.
 
 ## Building the fork showcase (public, one branch per contribution)
 
@@ -583,7 +654,7 @@ that *is* the manifest. The only state kept is a last-checked timestamp.
 
 - **A maintainer response** → highest priority. Answer it, and log it in `CREDIBILITY.md` (it's our
   scarcest signal, positive or negative).
-- **Someone acted on our review** → log it. *This is the play that's working: 2 of our 3 additive reviews
+- **Someone acted on our review** → log it. *This is the play that's working — see the tally in `CREDIBILITY.md`, which is the only place it is kept. Our additive reviews
   have been adopted.* (Its first run found one we'd missed entirely — @vladsoltan had adopted all three of
   our points on #1976 and we didn't know.)
 - **A close or criticism** → log it, with their operative sentence quoted.
