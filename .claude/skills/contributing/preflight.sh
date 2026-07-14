@@ -46,11 +46,15 @@ check_text() {  # $1=label $2=text $3=is_comment
     grep -qiE "no others|only plugin|nothing else" <<<"$DISC" && \
       flag "AP3: 'no others' is a checkable claim. Enumerate from settings.json instead."
   fi
-  # A hardcoded harness version goes stale the moment the CLI updates.
-  if command -v claude >/dev/null 2>&1; then
+  # A hardcoded harness version goes stale the moment the CLI updates. Only
+  # meaningful for a DRAFT you are about to post, where "now" is when the work
+  # happened. On an already-posted PR the older version is usually the honest
+  # one — it is when the diff and the evals actually ran — so flagging it there
+  # would paint every PR red forever and teach us to wave the gate through.
+  if [ "${DRAFT:-0}" = "1" ] && command -v claude >/dev/null 2>&1; then
     local live; live=$(claude --version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)
     if [ -n "$live" ] && grep -qE "Claude Code [0-9]+\.[0-9]+\.[0-9]+" <<<"$T" && ! grep -q "$live" <<<"$T"; then
-      flag "AP3: claims a Claude Code version that isn't the live one ($live). If the work predates the update, say so; don't ship a stale number silently."
+      flag "AP3: claims a Claude Code version that isn't the live one ($live). If the work genuinely predates the update, keep it; otherwise read it off the machine."
     fi
   fi
 
@@ -87,11 +91,11 @@ check_text() {  # $1=label $2=text $3=is_comment
 }
 
 case "${1:-}" in
-  --text) check_text "draft: $2" "$(cat "$2")" 1; echo; [ $fail -eq 0 ] && echo "✅ safe to post" || echo "🔴 FIX BEFORE POSTING"; exit $fail ;;
+  --text) DRAFT=1; check_text "draft: $2" "$(cat "$2")" 1; echo; [ $fail -eq 0 ] && echo "✅ safe to post" || echo "🔴 FIX BEFORE POSTING"; exit $fail ;;
   # A PR body is NOT a comment: obra's template mandates headings and sections,
   # so the length/heading rules would fire every time. A gate that always cries
   # wolf is one you learn to wave through — that is how a control rots.
-  --body) check_text "body draft: $2" "$(cat "$2")" 0; echo; [ $fail -eq 0 ] && echo "✅ safe to post" || echo "🔴 FIX BEFORE POSTING"; exit $fail ;;
+  --body) DRAFT=1; check_text "body draft: $2" "$(cat "$2")" 0; echo; [ $fail -eq 0 ] && echo "✅ safe to post" || echo "🔴 FIX BEFORE POSTING"; exit $fail ;;
   --pr)   PRS="$2" ;;
   *)      PRS=$(gh pr list -R "$UP" --author "$ME" --state open --json number --jq '.[].number') ;;
 esac
