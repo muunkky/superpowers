@@ -106,9 +106,24 @@ unexecuted claim) and a test harness for them already exists.
 the symptom. Rejected: it accepts any path containing a `.git` entry without confirming it is actually a
 working tree, which is *weaker* than the guard being replaced. `git -C "$X" rev-parse
 --is-inside-work-tree >/dev/null 2>&1` actually asks git the question the guard is trying to answer,
-handles primary clones, linked worktrees, and subdirectories uniformly, and correctly rejects a non-repo.
-It is already the repo's own idiom (`scripts/lint-shell.sh:43`) and the maintainer named it specifically.
-The `-C "$X"` is load-bearing — it tests the target path, not the current directory.
+handles primary clones, linked worktrees, and subdirectories uniformly, and correctly rejects a non-repo
+(exit 128). It is already the repo's own idiom (`scripts/lint-shell.sh:43`, the identical exit-code form)
+and the maintainer named it specifically. The `-C "$X"` is load-bearing — it tests the target path, not
+the current directory.
+
+**Bare-repo strictness delta (verified, and deliberately accepted).** A *bare* repo prints `false` but
+exits 0, so the exit-code form `... || die` *accepts* a bare repo, whereas the old `[[ -d "$REPO_ROOT/.git"
+]]` rejected it (a bare repo has no `.git` subdir). This is the one direction the new guard is *less*
+strict. It is harmless: you cannot package a Codex plugin from a bare repo (no working tree to stage), and
+the downstream steps fail anyway — just later and messier. We accept it rather than add output-string
+matching, because diverging from the repo's own idiom and the maintainer-named form to defend a nonsensical
+input would read as over-thought. The PR body notes this delta so a re-run finds nothing undisclosed.
+
+**Why replace, not delete.** Line 144 (immediately below the guard) already runs `git -C "$REPO_ROOT"
+rev-parse --verify "$REF^{commit}"`, which itself fails on a non-repo — so deleting line 143 would also fix
+the worktree case and still reject a non-repo, just with a vaguer message. We keep an explicit guard purely
+for its precise diagnostic ("repo root is not a git checkout"); the backstop below confirms the change is
+low-risk.
 
 ### Interface Design
 
@@ -126,10 +141,20 @@ The `die` message is unchanged, so any downstream expectation on the error text 
 
 **Goal.** `package-codex-plugin.sh` runs from a linked worktree; a test proves it.
 
-**Test strategy (written first).** Append a linked-worktree case to
+**Test strategy (written first).** Add a linked-worktree case to
 `tests/codex/test-package-codex-plugin.sh`, mirroring the existing dirty-worktree test: clone the repo
 `--no-local`, `git -C <clone> worktree add --detach <checkout> HEAD`, run the packaging script from the
 checkout with the suite's existing `$metadata_source` fixture and an `--output` target, assert exit 0.
+Wrap the script call in `set +e`/`set -e` like the dirty-worktree test.
+
+**Placement is load-bearing — insert BEFORE the tar.gz block (before line 198), NOT appended at the end.**
+The suite has 3 pre-existing tar.gz failures on GNU tar that abort the run under `set -e` at line 198,
+before anything after it executes. Appending the test (after the dirty-worktree test at ~line 285) would
+put it in that dead zone, where it never runs in a normal `bash tests/...` invocation on an affected box —
+possibly including the maintainer's. The `$metadata_source` fixture is ready by line 141 and the zip test
+finishes by line 197, so inserting the worktree case at ~line 197 (after the zip test, before the tar.gz
+block) lets it run in the normal invocation. This also avoids the maintainer seeing the suite abort
+*before* the new test and misreading the abort as the PR breaking the suite.
 
 **Deliverables.** The one-line guard change; the test block.
 
@@ -173,3 +198,4 @@ marketplace **packaging**, subagent lifecycle." This is a new bug leaf under it,
 | Date | Author | Notes |
 |---|---|---|
 | 2026-07-14 | muunkky | Initial — scope decision (fix package site, flag sync siblings) after reproducing all three sites on `dev` @ 92164e2. |
+| 2026-07-14 | muunkky | Design review (Approve): test must go BEFORE the tar.gz abort (~line 197), not appended; documented the bare-repo strictness delta and the line-144 gitness backstop. |
