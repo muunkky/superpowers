@@ -6,7 +6,8 @@
 #
 #   ./preflight.sh                # audit every open PR + our live comments
 #   ./preflight.sh --pr 1982      # one PR
-#   ./preflight.sh --text file.md # a draft comment/body BEFORE you post it
+#   ./preflight.sh --text file.md # a draft COMMENT before you post it
+#   ./preflight.sh --body file.md # a draft PR BODY (skips the comment-only length/heading rules)
 set -uo pipefail
 UP="obra/superpowers"; ME="muunkky"
 fail=0
@@ -28,6 +29,31 @@ check_text() {  # $1=label $2=text $3=is_comment
   grep -qiE "tested adversarially" <<<"$T" && ! grep -qiE "adversarial|turn-back|sent back|reused" <<<"$T" && \
     flag "AP3: claims adversarial testing but shows none. Show the run or untick."
 
+  # AP3 — the disclosure must match the machine. obra's bar is "ALL installed
+  # plugins"; hiding the authoring environment is a stated closing reason. On
+  # 2026-07-13 all four of our PRs named only gitban while three more were
+  # enabled, and #1984 asserted "No others." — a checkable false statement.
+  # Scope to the disclosure line itself — "and nothing else" about a PR's scope
+  # is not a claim about plugins, and "gitban plugin (...)" must still trigger.
+  local DISC sf=~/.claude/settings.json p
+  DISC=$(grep -iE "plugins installed|^Disclosure:|Plugins:|plugin \(" <<<"$T" || true)
+  if [ -n "$DISC" ]; then
+    if [ -f "$sf" ]; then
+      for p in $(python3 -c "import json;print(' '.join(k.split('@')[0] for k in json.load(open('$sf')).get('enabledPlugins',{})))" 2>/dev/null); do
+        grep -qi -- "$p" <<<"$DISC" || flag "AP3: disclosure omits enabled plugin '$p'. obra's bar is ALL installed plugins."
+      done
+    fi
+    grep -qiE "no others|only plugin|nothing else" <<<"$DISC" && \
+      flag "AP3: 'no others' is a checkable claim. Enumerate from settings.json instead."
+  fi
+  # A hardcoded harness version goes stale the moment the CLI updates.
+  if command -v claude >/dev/null 2>&1; then
+    local live; live=$(claude --version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)
+    if [ -n "$live" ] && grep -qE "Claude Code [0-9]+\.[0-9]+\.[0-9]+" <<<"$T" && ! grep -q "$live" <<<"$T"; then
+      flag "AP3: claims a Claude Code version that isn't the live one ($live). If the work predates the update, say so; don't ship a stale number silently."
+    fi
+  fi
+
   # AP1 — assertion in place of execution
   grep -qiE "by inspection|this could (cause|lead)|my review agent|should (in theory|probably)" <<<"$T" && \
     flag "AP1: assertion, not execution. Run it and quote the output."
@@ -41,7 +67,10 @@ check_text() {  # $1=label $2=text $3=is_comment
   if [ "$C" = "1" ]; then
     [ "$len" -gt 2000 ] && flag "AP7: $len chars. A comment over ~2000 is showing off." || ok "length ${len}"
     [ "$bold" -gt 4 ] && flag "AP7: $bold bolds. Plain prose." || ok "$bold bolds"
-    grep -qE "^#{1,3} " <<<"$T" && flag "AP7: headings in a comment. It's a message, not a document."
+    # Fence-aware: `# pass 6` from node --test / TAP output is not a heading.
+    # A gate that cries wolf is a gate you learn to ignore.
+    awk '/^```/{f=!f;next} !f' <<<"$T" | grep -qE "^#{1,3} " && \
+      flag "AP7: headings in a comment. It's a message, not a document."
   fi
   grep -qiE "adversarial review round|review round|our (harness|lifecycle)|PRD|design doc|sprint" <<<"$T" && \
     flag "AP7: narrating OUR process. He cares about HIS code."
@@ -59,6 +88,10 @@ check_text() {  # $1=label $2=text $3=is_comment
 
 case "${1:-}" in
   --text) check_text "draft: $2" "$(cat "$2")" 1; echo; [ $fail -eq 0 ] && echo "✅ safe to post" || echo "🔴 FIX BEFORE POSTING"; exit $fail ;;
+  # A PR body is NOT a comment: obra's template mandates headings and sections,
+  # so the length/heading rules would fire every time. A gate that always cries
+  # wolf is one you learn to wave through — that is how a control rots.
+  --body) check_text "body draft: $2" "$(cat "$2")" 0; echo; [ $fail -eq 0 ] && echo "✅ safe to post" || echo "🔴 FIX BEFORE POSTING"; exit $fail ;;
   --pr)   PRS="$2" ;;
   *)      PRS=$(gh pr list -R "$UP" --author "$ME" --state open --json number --jq '.[].number') ;;
 esac
@@ -83,9 +116,9 @@ for p in $PRS; do
     [ -z "$real" ] && real=$(gh issue view "$c" -R "$UP" --json state --jq '.state' 2>/dev/null)
     [ -z "$real" ] && continue
     said=""
-    grep -qE "#$c[^0-9].{0,40}(merged|MERGED)" <<<"$body" && said="MERGED"
-    grep -qE "#$c[^0-9].{0,40}(open|OPEN|draft)" <<<"$body" && said="OPEN"
-    grep -qE "#$c[^0-9].{0,40}(closed|CLOSED)" <<<"$body" && said="CLOSED"
+    grep -qE "#${c}[^0-9].{0,40}(merged|MERGED)" <<<"$body" && said="MERGED"
+    grep -qE "#${c}[^0-9].{0,40}(open|OPEN|draft)" <<<"$body" && said="OPEN"
+    grep -qE "#${c}[^0-9].{0,40}(closed|CLOSED)" <<<"$body" && said="CLOSED"
     [ -n "$said" ] && [ "$said" != "$real" ] && flag "says #$c is $said — it is $real (state drifted)"
   done
 

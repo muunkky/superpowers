@@ -460,8 +460,23 @@ obra requires model + harness + plugins. Naming the plugin is mandatory — so *
 link**. That is legitimate and it is the visibility we want. What is NOT allowed is *narrating what gitban
 does*. Use exactly this in every comment, varying only the short grounding clause:
 
-> Disclosure: agent-assisted — Claude Opus 4.8 (`claude-opus-4-8`), Claude Code 2.1.207, gitban plugin
-> (muunkky.github.io/gitban-site). Grounded in \<one short clause: what you actually ran or read\>.
+> Disclosure: agent-assisted — Claude Opus 4.8 (`claude-opus-4-8[1m]`), Claude Code \<live version\>.
+> Plugins: gitban (muunkky.github.io/gitban-site), \<every other enabled plugin\>. Not `superpowers` itself.
+> Grounded in \<one short clause: what you actually ran or read\>.
+
+**Both variable fields are FACTS ABOUT THIS MACHINE. Read them, never recall them:**
+
+```bash
+claude --version                                              # the harness version, right now
+jq -r '.enabledPlugins | keys[]' ~/.claude/settings.json      # EVERY enabled plugin, not just gitban
+```
+
+His bar is *"all installed plugins"*, and *"contributions that hide their authoring environment will be
+closed."* **"gitban. No others." is a checkable false statement** — we shipped exactly that on #1984 while
+three more plugins were enabled, and shipped a stale `2.1.207` on all four PRs after the CLI moved to
+`2.1.208`. Both are AP3, the sole-sufficient kill. A plugin that played no part in the work is still an
+*installed* plugin: **enumerate, don't curate.** `preflight.sh` now diffs your disclosure against
+`settings.json` and against `claude --version` — let it, rather than trusting this paragraph.
 
 **The link stays. The lifecycle narration never appears.** "gitban plugin (muunkky.github.io/gitban-site)"
 is a disclosure field with a URL — fine, and someone curious can click it. "gitban, driving the roadmap →
