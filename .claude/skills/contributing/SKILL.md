@@ -418,6 +418,72 @@ the grep. It is exactly the failure AP1 is about, committed by the document that
 **So decide whether to argue on the evidence, not on the footer.** If they got a fact wrong, say so and
 show the command. If they got it right, take the close.
 
+## ⚖️ Right-size the pipeline to the change — FIRST, before you run any of it
+
+**Measured on this fork, 2026-07-14: we shipped 20 added lines upstream and built 3,529 lines of apparatus
+to do it — 176:1. Of that, 1,494 lines were a PRD + design doc + ADR deliberating a NINE-LINE prose change.**
+
+That is the *exact* failure obra closes PRs for. He killed [#668](https://github.com/obra/superpowers/pull/668)
+with *"a massive amount of complexity for what should be a straightforward configuration option"* — and that
+author wasn't lazy, they were **taking the better long-term solution.** So are we. Our own lifecycle tenets
+(*"no tech debt… take the better long-term solution… scalability is preferred"*) are a **rationalization
+engine for gold-plating**, correct for a product we own and actively wrong for a small contribution to
+someone else's repo.
+
+**The median PR that actually merges here is 6 lines and 1 file.** Nobody writes a PRD for that.
+
+| The change | What the fork pipeline should be |
+|---|---|
+| **A few lines of prose/config in an existing file** (most of what lands) | **No PRD. No ADR. No design doc. No deck.** Socialize on the issue, build it, gate it, open it. The deliberation belongs in the PR body's *Alternatives* section, which is where he'll actually read it. |
+| **A new behaviour, or one that touches tuned skill content** | A design doc *if* you genuinely have alternatives to weigh — and it exists to **make the diff smaller**, not to justify it. Its output is the PR's Alternatives section. Skip the PRD. |
+| **A new harness, or a real feature** | The full lifecycle earns its keep. This is rare. |
+
+**The test:** *if the artifact will not change what you ship, do not write it.* #1982's design doc did earn
+its keep — it ruled out naming `close_agent` and chose the 9-line option over a bigger one. But it did not
+need 1,494 lines to do that, and the PRD and ADR above it changed nothing at all.
+
+**And never link them to the PR.** Zero of the 42 external merges linked a PRD, ADR, design doc or showcase.
+obra's template weighs *"content reasoned from documentation"* on a **lower** bar than work grounded in a real
+session — attaching our planning docs volunteers us into his low-trust bucket while advertising a
+process-to-output ratio he closes people for. Depth is shown in *his* currency: `git log -S` on the code you're
+touching, a command with its output, an eval with transcripts. Not in our documents.
+
+## ⚖️ Deep thought, simple solution — right-size the SHIPPED THING, never the thinking
+
+**He does not punish thought. He punishes shallow work and complicated solutions.**
+
+The evidence runs the opposite way to the intuition. [#1797](https://github.com/obra/superpowers/pull/1797)
+died on the words **"By inspection"** — closed for *not thinking hard enough*. He re-ran a contributor's
+claim *"across 3 independent sessions"* before calling it false (#1801). He asks for **"transcripts, not
+summaries"** (#1166), and his template demands *"genuine understanding of the problem, investigation of
+prior attempts."* His own PRs run to +2,045 lines. There is no economy-of-effort here to appeal to.
+
+What he closed [#668](https://github.com/obra/superpowers/pull/668) for was *"a massive amount of complexity
+for what should be a straightforward configuration option"* — a JSON registry, a CLI manager, a GC daemon,
+post-merge hooks and LaunchAgents. **That is a verdict on the artifact, not on the deliberation behind it.**
+And note *why* it happened: that author wasn't lazy, they were **taking the better long-term solution** —
+which is our own lifecycle tenet, and it is a rationalization engine for gold-plating **the deliverable.**
+Point it at the deliverable and it kills you here. Point it at the thinking and it's exactly right.
+
+**So: deliberate as hard as the problem deserves, then ship the smallest thing that solves it.** The median
+PR that merges here is **6 lines, 1 file** — not because he wants shallow work, but because a deeply
+understood problem usually has a small answer. A big diff is evidence you have not finished thinking.
+
+**The test for any planning artifact: does it make the diff SMALLER?** If yes, it earned its keep however
+long it is. If it only justifies a diff you had already decided on, it is decoration. (#1982's design doc
+passes: it ruled out naming `close_agent` in the bodies and chose the 9-line option over a larger one. The
+PRD above it changed nothing about what shipped.)
+
+**Two things follow, and only two:**
+
+1. **Never let the artifacts inflate the diff.** They exist to shrink it.
+2. **Don't link them to the PR.** Not because thinking is bad — because they are not the evidence he checks.
+   **Zero of the 42 external merges linked a PRD, ADR, design doc or showcase.** Depth is demonstrated in
+   *his* currency and nowhere else: `git log -S` on the code you're touching, a command with its real output,
+   an eval with transcripts, his own closing comment quoted back. Put the deliberation's *conclusions* in the
+   PR body's **Alternatives** section — that is where he reads them, and it is the same argument without the
+   process narration (AP7).
+
 ## The sequence — how a good contributor lands a change
 
 The *order* matters as much as the work. At a heavily-rejecting, anti-slop upstream (see CREDIBILITY's Baseline) you want to appear as a
